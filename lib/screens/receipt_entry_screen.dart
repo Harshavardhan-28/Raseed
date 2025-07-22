@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -130,7 +131,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
       ),
       backgroundColor: const Color(0xFFF8F9FA),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: AnimatedThreeDotLoader())
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -324,6 +325,93 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                 ],
               ),
             ),
+    );
+  }
+}
+
+// Modern animated three-dot loader widget with loading text
+class AnimatedThreeDotLoader extends StatefulWidget {
+  const AnimatedThreeDotLoader({Key? key}) : super(key: key);
+
+  @override
+  State<AnimatedThreeDotLoader> createState() => _AnimatedThreeDotLoaderState();
+}
+
+class _AnimatedThreeDotLoaderState extends State<AnimatedThreeDotLoader> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 48,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              double t = _controller.value;
+              // Each dot animates with a phase offset
+              List<double> scales = List.generate(3, (i) {
+                double phase = (t - i * 0.2) % 1.0;
+                double scale = 0.7 + 0.6 * (0.5 + 0.5 * (1 - (phase * 2 - 1).abs()));
+                return scale;
+              });
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(3, (i) =>
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Transform.scale(
+                      scale: scales[i],
+                      child: Container(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF007AFF),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.blueAccent.withOpacity(0.15),
+                              blurRadius: 6,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 18),
+        const Text(
+          'Analyzing receipt...',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF007AFF),
+            letterSpacing: 0.2,
+          ),
+        ),
+      ],
     );
   }
 }
