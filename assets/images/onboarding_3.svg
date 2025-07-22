@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Messy icons to organized pie chart -->
+  
+  <!-- Messy side (left) -->
+  <!-- Shopping cart -->
+  <path d="M40 100 L45 100 L50 80 L70 80 L65 100 L60 100" stroke="#6c757d" stroke-width="2" fill="none"/>
+  <circle cx="45" cy="105" r="3" fill="#6c757d"/>
+  <circle cx="60" cy="105" r="3" fill="#6c757d"/>
+  
+  <!-- Fork and knife (overlapping) -->
+  <line x1="55" y1="60" x2="55" y2="90" stroke="#6c757d" stroke-width="2"/>
+  <line x1="50" y1="65" x2="60" y2="65" stroke="#6c757d" stroke-width="2"/>
+  <line x1="65" y1="60" x2="65" y2="90" stroke="#6c757d" stroke-width="2"/>
+  
+  <!-- Airplane (overlapping) -->
+  <path d="M70 120 L90 110 L85 115 L100 115 L85 125 L90 130 L70 120 Z" fill="#6c757d"/>
+  
+  <!-- Arrow -->
+  <path d="M120 100 L140 100 M130 90 L140 100 L130 110" stroke="#007bff" stroke-width="3" fill="none"/>
+  
+  <!-- Organized pie chart (right) -->
+  <circle cx="200" cy="100" r="40" fill="#e9ecef" stroke="#ffffff" stroke-width="2"/>
+  
+  <!-- Pie segments -->
+  <path d="M 200 100 L 200 60 A 40 40 0 0 1 228.28 128.28 Z" fill="#007bff"/>
+  <path d="M 200 100 L 228.28 128.28 A 40 40 0 0 1 171.72 128.28 Z" fill="#28a745"/>
+  <path d="M 200 100 L 171.72 128.28 A 40 40 0 0 1 171.72 71.72 Z" fill="#ffc107"/>
+  <path d="M 200 100 L 171.72 71.72 A 40 40 0 0 1 200 60 Z" fill="#dc3545"/>
+  
+  <!-- Labels -->
+  <text x="250" y="80" font-family="Arial" font-size="10" fill="#6c757d">Food</text>
+  <text x="250" y="95" font-family="Arial" font-size="10" fill="#6c757d">Shopping</text>
+  <text x="250" y="110" font-family="Arial" font-size="10" fill="#6c757d">Travel</text>
+  <text x="250" y="125" font-family="Arial" font-size="10" fill="#6c757d">Other</text>
+</svg>

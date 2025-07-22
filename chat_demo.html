@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RASEED AI Chat - Feature Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: #007AFF;
+            border-radius: 15px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid #007AFF;
+        }
+        
+        .feature-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: #007AFF;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .feature-examples {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #eee;
+        }
+        
+        .example {
+            background: #007AFF;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+            margin: 5px 5px 5px 0;
+            display: inline-block;
+        }
+        
+        .demo-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+            text-align: center;
+        }
+        
+        .demo-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .demo-description {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 25px;
+        }
+        
+        .chat-preview {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+        }
+        
+        .user-message {
+            text-align: right;
+        }
+        
+        .user-bubble {
+            background: #007AFF;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 18px;
+            display: inline-block;
+            max-width: 80%;
+        }
+        
+        .ai-message {
+            text-align: left;
+        }
+        
+        .ai-bubble {
+            background: #f0f0f0;
+            color: #333;
+            padding: 10px 15px;
+            border-radius: 18px;
+            display: inline-block;
+            max-width: 80%;
+        }
+        
+        .rich-response {
+            background: #e8f4f8;
+            border: 1px solid #b3d9e8;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .rich-title {
+            font-weight: 600;
+            color: #007AFF;
+            margin-bottom: 10px;
+        }
+        
+        .access-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .access-title {
+            font-weight: 600;
+            color: #8b6f00;
+            margin-bottom: 10px;
+        }
+        
+        .access-description {
+            color: #8b6f00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🤖</div>
+            <h1 class="title">RASEED AI Assistant</h1>
+            <p class="subtitle">Conversational AI for Smart Financial Management</p>
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3 class="feature-title">
+                    <span class="feature-icon">💬</span>
+                    Natural Conversations
+                </h3>
+                <p class="feature-description">
+                    Chat naturally with RASEED AI using everyday language. Ask questions about your finances, expenses, and inventory in a conversational way.
+                </p>
+                <div class="feature-examples">
+                    <span class="example">"How much did I spend on groceries?"</span>
+                    <span class="example">"What's expiring soon?"</span>
+                    <span class="example">"Do I have detergent at home?"</span>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">
+                    <span class="feature-icon">📊</span>
+                    Rich Visual Responses
+                </h3>
+                <p class="feature-description">
+                    Get more than just text answers. RASEED AI provides interactive charts, cards, and visual data representations for better insights.
+                </p>
+                <div class="feature-examples">
+                    <span class="example">Expense Charts</span>
+                    <span class="example">Inventory Cards</span>
+                    <span class="example">Recipe Suggestions</span>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">
+                    <span class="feature-icon">🎯</span>
+                    Smart Suggestions
+                </h3>
+                <p class="feature-description">
+                    Never wonder what to ask. The AI provides helpful suggestion chips to guide your conversations and discover new features.
+                </p>
+                <div class="feature-examples">
+                    <span class="example">Track expenses</span>
+                    <span class="example">Check inventory</span>
+                    <span class="example">Recipe ideas</span>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">
+                    <span class="feature-icon">⚡</span>
+                    Instant Access
+                </h3>
+                <p class="feature-description">
+                    Access the AI assistant from multiple places in the app - through the Quick Actions hub or the dedicated AI button in the header.
+                </p>
+                <div class="feature-examples">
+                    <span class="example">Quick Actions Card</span>
+                    <span class="example">Header Button</span>
+                    <span class="example">Always Available</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2 class="demo-title">Experience the Conversation</h2>
+            <p class="demo-description">
+                See how RASEED AI understands your questions and provides intelligent, visual responses
+            </p>
+            
+            <div class="chat-preview">
+                <div class="message user-message">
+                    <div class="user-bubble">How much did I spend on groceries last month?</div>
+                </div>
+                
+                <div class="message ai-message">
+                    <div class="ai-bubble">I'd be happy to help you with that! Let me analyze your data.</div>
+                </div>
+                
+                <div class="rich-response">
+                    <div class="rich-title">📊 Grocery Spending - Last Month</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #007AFF; margin: 10px 0;">$342.50</div>
+                    <div style="font-size: 14px; color: #666;">
+                        • Fresh Produce: $125.30<br>
+                        • Dairy & Eggs: $78.20<br>
+                        • Meat & Seafood: $89.50<br>
+                        • Pantry Items: $49.50
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="access-note">
+            <div class="access-title">🚀 How to Access</div>
+            <p class="access-description">
+                Launch the app and tap the purple AI Assistant card in Quick Actions, or use the robot icon in the top navigation bar to start chatting with RASEED AI.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

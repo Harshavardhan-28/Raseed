@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Calendar with shield and notification -->
+  
+  <!-- Calendar -->
+  <rect x="100" y="40" width="100" height="120" rx="8" fill="#ffffff" stroke="#e9ecef" stroke-width="2"/>
+  <rect x="100" y="40" width="100" height="30" rx="8" fill="#007bff"/>
+  <!-- Calendar header -->
+  <circle cx="120" cy="55" r="3" fill="#ffffff"/>
+  <circle cx="180" cy="55" r="3" fill="#ffffff"/>
+  
+  <!-- Calendar grid -->
+  <rect x="110" y="80" width="15" height="15" fill="#f8f9fa"/>
+  <rect x="130" y="80" width="15" height="15" fill="#f8f9fa"/>
+  <rect x="150" y="80" width="15" height="15" fill="#f8f9fa"/>
+  <rect x="170" y="80" width="15" height="15" fill="#f8f9fa"/>
+  
+  <rect x="110" y="100" width="15" height="15" fill="#f8f9fa"/>
+  <rect x="130" y="100" width="15" height="15" fill="#f8f9fa"/>
+  <rect x="150" y="100" width="15" height="15" fill="#28a745"/>
+  <rect x="170" y="100" width="15" height="15" fill="#f8f9fa"/>
+  
+  <!-- Shield overlay on future date -->
+  <path d="M155 95 L160 90 L165 95 L165 110 L160 115 L155 110 Z" fill="#ffc107" stroke="#ffffff" stroke-width="1"/>
+  
+  <!-- Notification bell -->
+  <path d="M220 90 Q215 85 210 90 L210 105 Q210 110 215 110 Q220 110 225 105 L225 90" fill="#dc3545"/>
+  <circle cx="217.5" cy="112" r="2" fill="#dc3545"/>
+  <!-- Notification indicator -->
+  <circle cx="225" cy="85" r="4" fill="#ff6b6b"/>
+</svg>
