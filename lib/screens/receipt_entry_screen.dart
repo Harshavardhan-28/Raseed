@@ -16,10 +16,10 @@ class ReceiptEntryScreen extends StatefulWidget {
 
 
 class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
-  final _merchantController = TextEditingController();
-  final _amountController = TextEditingController();
-  final _categoryController = TextEditingController();
-  DateTime? _selectedDate;
+  final _storeNameController = TextEditingController();
+  final _totalAmountController = TextEditingController();
+  DateTime? _transactionDate;
+  List<Map<String, dynamic>> _lineItems = [];
   String? _receiptImagePath;
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
@@ -75,13 +75,17 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
         final data = jsonDecode(response.body);
         debugPrint('API response data: $data');
         setState(() {
-          _merchantController.text = data['merchant'] ?? data['storeName'] ?? '';
-          _amountController.text = data['amount']?.toString() ?? data['totalAmount']?.toString() ?? '';
-          _categoryController.text = data['category'] ?? '';
-          if (data['date'] != null) {
-            _selectedDate = DateTime.tryParse(data['date']);
-          } else if (data['transactionDate'] != null) {
-            _selectedDate = DateTime.tryParse(data['transactionDate']);
+          _storeNameController.text = data['storeName'] ?? '';
+          _totalAmountController.text = data['totalAmount']?.toString() ?? '';
+          if (data['transactionDate'] != null) {
+            _transactionDate = DateTime.tryParse(data['transactionDate']);
+          } else if (data['date'] != null) {
+            _transactionDate = DateTime.tryParse(data['date']);
+          }
+          if (data['lineItems'] != null && data['lineItems'] is List) {
+            _lineItems = List<Map<String, dynamic>>.from(data['lineItems']);
+          } else {
+            _lineItems = [];
           }
         });
       } else {
@@ -105,9 +109,8 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
 
   @override
   void dispose() {
-    _merchantController.dispose();
-    _amountController.dispose();
-    _categoryController.dispose();
+    _storeNameController.dispose();
+    _totalAmountController.dispose();
     super.dispose();
   }
 
@@ -173,26 +176,18 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                   ),
                   const SizedBox(height: 16),
                   TextField(
-                    controller: _merchantController,
+                    controller: _storeNameController,
                     decoration: const InputDecoration(
-                      labelText: 'Merchant',
+                      labelText: 'Store Name',
                       border: OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextField(
-                    controller: _amountController,
+                    controller: _totalAmountController,
                     keyboardType: TextInputType.numberWithOptions(decimal: true),
                     decoration: const InputDecoration(
-                      labelText: 'Amount',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _categoryController,
-                    decoration: const InputDecoration(
-                      labelText: 'Category',
+                      labelText: 'Total Amount',
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -201,9 +196,9 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          _selectedDate == null
+                          _transactionDate == null
                               ? 'Date: Not selected'
-                              : 'Date: ${_selectedDate!.toLocal().toString().split(' ')[0]}',
+                              : 'Date: ${_transactionDate!.toLocal().toString().split(' ')[0]}',
                           style: const TextStyle(fontSize: 16),
                         ),
                       ),
@@ -217,7 +212,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                           );
                           if (picked != null) {
                             setState(() {
-                              _selectedDate = picked;
+                              _transactionDate = picked;
                             });
                           }
                         },
@@ -225,20 +220,91 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Line Items', style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _lineItems.add({'description': '', 'quantity': '', 'price': ''});
+                          });
+                        },
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add Line Item'),
+                        style: TextButton.styleFrom(foregroundColor: Color(0xFF007AFF)),
+                      ),
+                    ],
+                  ),
+                  if (_lineItems.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        'No line items. Tap "Add Line Item" to add.',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    ),
+                  ..._lineItems.asMap().entries.map((entry) {
+                    final idx = entry.key;
+                    final item = entry.value;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: TextFormField(
+                              initialValue: item['description']?.toString() ?? '',
+                              decoration: const InputDecoration(labelText: 'Description'),
+                              onChanged: (val) => _lineItems[idx]['description'] = val,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 1,
+                            child: TextFormField(
+                              initialValue: item['quantity']?.toString() ?? '',
+                              decoration: const InputDecoration(labelText: 'Qty'),
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                              onChanged: (val) => _lineItems[idx]['quantity'] = double.tryParse(val) ?? val,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 2,
+                            child: TextFormField(
+                              initialValue: item['price']?.toString() ?? '',
+                              decoration: const InputDecoration(labelText: 'Price'),
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                              onChanged: (val) => _lineItems[idx]['price'] = double.tryParse(val) ?? val,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.redAccent),
+                            tooltip: 'Remove',
+                            onPressed: () {
+                              setState(() {
+                                _lineItems.removeAt(idx);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (_merchantController.text.isNotEmpty && _amountController.text.isNotEmpty) {
-                          final transaction = RecentTransaction(
-                            merchant: _merchantController.text,
-                            amount: _amountController.text,
-                            category: _categoryController.text.isNotEmpty ? _categoryController.text : 'Other',
-                            icon: Icons.receipt_long,
-                            time: _selectedDate != null ? _selectedDate!.toLocal().toString().split(' ')[0] : 'Now',
-                            color: const Color(0xFF007AFF),
-                          );
+                        if (_storeNameController.text.isNotEmpty && _totalAmountController.text.isNotEmpty) {
+                          final transaction = {
+                            'storeName': _storeNameController.text,
+                            'totalAmount': _totalAmountController.text,
+                            'transactionDate': _transactionDate?.toIso8601String(),
+                            'lineItems': _lineItems,
+                          };
                           Navigator.of(context).pop(transaction);
                         }
                       },
