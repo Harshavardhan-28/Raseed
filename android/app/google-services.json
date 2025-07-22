@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "979444618103",
+    "project_id": "turing-runner-466506-n4",
+    "storage_bucket": "turing-runner-466506-n4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:979444618103:android:e2c4aa42101e4e13764772",
+        "android_client_info": {
+          "package_name": "com.example.figma_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "979444618103-70vb2lmp4htv9cg8h1s9n3pt82hok5cp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnjxSSn4C1hcpp2a28bbjmry7bgdTIpq0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "979444618103-70vb2lmp4htv9cg8h1s9n3pt82hok5cp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -350,9 +350,12 @@ class _AuthScreenState extends State<AuthScreen> {
   Future<void> _handleGoogleSignIn() async {
     setState(() => isLoading = true);
     try {
-      await _authService.signInWithGoogle();
+      final user = await _authService.signInWithGoogle();
       if (mounted) {
-        _navigateToHome('Successfully signed in with Google!');
+        _navigateToHome(
+          'Successfully signed in with Google!',
+          userName: user?.displayName ?? user?.email ?? 'User',
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -371,21 +374,27 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() => isLoading = true);
     try {
       if (isSignInView) {
-        await _authService.signInWithEmail(
+        final user = await _authService.signInWithEmail(
           _emailController.text.trim(),
           _passwordController.text,
         );
         if (mounted) {
-          _navigateToHome('Successfully signed in!');
+          _navigateToHome(
+            'Successfully signed in!',
+            userName: user?.displayName ?? user?.email ?? 'User',
+          );
         }
       } else {
-        await _authService.signUpWithEmail(
+        final user = await _authService.signUpWithEmail(
           _emailController.text.trim(),
           _passwordController.text,
           _confirmPasswordController.text,
         );
         if (mounted) {
-          _navigateToHome('Account created successfully!');
+          _navigateToHome(
+            'Account created successfully!',
+            userName: user?.displayName ?? user?.email ?? 'User',
+          );
         }
       }
     } catch (e) {
@@ -406,8 +415,7 @@ class _AuthScreenState extends State<AuthScreen> {
     _formKey.currentState?.reset();
   }
 
-  void _navigateToHome(String message) {
-    // Show success message
+  void _navigateToHome(String message, {String? userName}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -416,11 +424,9 @@ class _AuthScreenState extends State<AuthScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
-
-    // Navigate to home screen
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
+      MaterialPageRoute(builder: (context) => HomeScreen(userName: userName)),
     );
   }
 

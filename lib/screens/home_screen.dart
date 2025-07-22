@@ -3,7 +3,8 @@ import 'chat_screen.dart';
 import 'warranties_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String? userName;
+  const HomeScreen({super.key, this.userName});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -107,18 +108,18 @@ class _HomeScreenState extends State<HomeScreen> {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
-      title: const Column(
+      title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Welcome back, Akash',
-            style: TextStyle(
+            'Welcome back, ${widget.userName ?? 'User'}',
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: Colors.black87,
             ),
           ),
-          Text(
+          const Text(
             'Track your expenses smartly',
             style: TextStyle(
               fontSize: 12,

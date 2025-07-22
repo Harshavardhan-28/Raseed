@@ -164,26 +164,61 @@ class _WarrantiesScreenState extends State<WarrantiesScreen> {
     final sortedWarranties = _sortWarrantiesByUrgency(filteredWarranties);
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: const Text(
           'Product Warranties',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+            letterSpacing: -0.3,
+          ),
         ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
-        elevation: 1,
-        shadowColor: Colors.black12,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // TODO: Implement search functionality
-            },
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.grey[200]!, Colors.grey[100]!],
+              ),
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: _showFilterBottomSheet,
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.search, size: 20),
+              ),
+              onPressed: () {
+                // TODO: Implement search functionality
+              },
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            child: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.filter_list, size: 20),
+              ),
+              onPressed: _showFilterBottomSheet,
+            ),
           ),
         ],
       ),
@@ -229,76 +264,123 @@ class _WarrantiesScreenState extends State<WarrantiesScreen> {
     final expired = _warranties.where((w) => w.isExpired).length;
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Card(
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.08),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: const LinearGradient(
+              colors: [Colors.white, Color(0xFFFAFBFC)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          _buildStatItem(
-            'Total',
-            _warranties.length.toString(),
-            const Color(0xFF007AFF),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Warranty Overview',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                  letterSpacing: -0.2,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  _buildStatItem(
+                    'Total',
+                    _warranties.length.toString(),
+                    const Color(0xFF007AFF),
+                    Icons.shield_outlined,
+                  ),
+                  _buildStatItem(
+                    'Expiring Soon',
+                    expiringSoon.toString(),
+                    const Color(0xFFFF9500),
+                    Icons.warning_amber_outlined,
+                  ),
+                  _buildStatItem(
+                    'This Month',
+                    expiringThisMonth.toString(),
+                    const Color(0xFFFFCC02),
+                    Icons.schedule_outlined,
+                  ),
+                  _buildStatItem(
+                    'Expired',
+                    expired.toString(),
+                    const Color(0xFFFF3B30),
+                    Icons.error_outline,
+                  ),
+                ],
+              ),
+            ],
           ),
-          _buildStatItem(
-            'Expiring Soon',
-            expiringSoon.toString(),
-            const Color(0xFFFF9500),
-          ),
-          _buildStatItem(
-            'This Month',
-            expiringThisMonth.toString(),
-            const Color(0xFFFFCC02),
-          ),
-          _buildStatItem(
-            'Expired',
-            expired.toString(),
-            const Color(0xFFFF3B30),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, Color color) {
+  Widget _buildStatItem(
+    String label,
+    String value,
+    Color color,
+    IconData icon,
+  ) {
     return Expanded(
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [color.withOpacity(0.15), color.withOpacity(0.05)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color.withOpacity(0.2), width: 1),
+              ),
+              child: Icon(icon, color: color, size: 20),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: color,
+                letterSpacing: -0.5,
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.3,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildFilterChips() {
     return Container(
-      height: 50,
+      height: 60,
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -308,26 +390,64 @@ class _WarrantiesScreenState extends State<WarrantiesScreen> {
           final isSelected = _selectedFilter == option;
 
           return Container(
-            margin: EdgeInsets.only(right: 8, left: index == 0 ? 0 : 0),
-            child: FilterChip(
-              label: Text(
-                option,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.grey[700],
-                  fontWeight: FontWeight.w500,
+            margin: EdgeInsets.only(right: 12, left: index == 0 ? 4 : 0),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _selectedFilter = option;
+                  });
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient:
+                        isSelected
+                            ? const LinearGradient(
+                              colors: [Color(0xFF007AFF), Color(0xFF5856D6)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            )
+                            : null,
+                    color: isSelected ? null : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color:
+                          isSelected ? Colors.transparent : Colors.grey[300]!,
+                      width: 1,
+                    ),
+                    boxShadow:
+                        isSelected
+                            ? [
+                              BoxShadow(
+                                color: const Color(0xFF007AFF).withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                            : [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                  ),
+                  child: Text(
+                    option,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.grey[700],
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
                 ),
-              ),
-              selected: isSelected,
-              onSelected: (selected) {
-                setState(() {
-                  _selectedFilter = option;
-                });
-              },
-              backgroundColor: Colors.white,
-              selectedColor: const Color(0xFF007AFF),
-              checkmarkColor: Colors.white,
-              side: BorderSide(
-                color: isSelected ? const Color(0xFF007AFF) : Colors.grey[300]!,
               ),
             ),
           );
@@ -472,36 +592,55 @@ class WarrantyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       child: Card(
-        elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.1),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 3,
+        shadowColor: Colors.black.withOpacity(0.08),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                colors: [Colors.white, Colors.grey[50]!],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
             child: Row(
               children: [
-                // Category Icon
+                // Enhanced Category Icon with better visual hierarchy
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
-                    color: warranty.urgencyColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      colors: [
+                        warranty.urgencyColor.withOpacity(0.15),
+                        warranty.urgencyColor.withOpacity(0.05),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: warranty.urgencyColor.withOpacity(0.2),
+                      width: 1,
+                    ),
                   ),
                   child: Icon(
                     warranty.categoryIcon,
                     color: warranty.urgencyColor,
-                    size: 24,
+                    size: 28,
                   ),
                 ),
 
                 const SizedBox(width: 16),
 
-                // Product Info
+                // Enhanced Product Info with better typography
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -509,46 +648,122 @@ class WarrantyCard extends StatelessWidget {
                       Text(
                         warranty.productName,
                         style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
                           color: Colors.black87,
+                          letterSpacing: -0.2,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${warranty.storeName} • ${_formatDate(warranty.purchaseDate)}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.store_outlined,
+                            size: 14,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              '${warranty.storeName} • ${_formatDate(warranty.purchaseDate)}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
+                      // Enhanced status badge with better design
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                          horizontal: 12,
+                          vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: warranty.urgencyColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          warranty.urgencyText,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: warranty.urgencyColor,
+                          gradient: LinearGradient(
+                            colors: [
+                              warranty.urgencyColor.withOpacity(0.15),
+                              warranty.urgencyColor.withOpacity(0.1),
+                            ],
                           ),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: warranty.urgencyColor.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: warranty.urgencyColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              warranty.urgencyText,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: warranty.urgencyColor,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
 
-                // Arrow Icon
-                Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
+                const SizedBox(width: 12),
+
+                // Enhanced trailing section with urgency indicator
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.chevron_right,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Urgency indicator dot
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: warranty.urgencyColor,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: warranty.urgencyColor.withOpacity(0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

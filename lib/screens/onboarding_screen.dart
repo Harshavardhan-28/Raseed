@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'auth_screen.dart';
 
@@ -16,19 +15,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingData> _onboardingData = [
     OnboardingData(
-      image: 'assets/images/onboarding_1.svg',
+      image: 'assets/images/onboarding_1.jpg',
       title: 'Snap, Scan, and Simplify.',
       subtitle:
           'Instantly turn any receipt—paper, email, or photo—into smart, organized data.',
     ),
     OnboardingData(
-      image: 'assets/images/onboarding_2.svg',
+      image: 'assets/images/onboarding_2.jpg',
       title: 'Never Miss a Deadline.',
       subtitle:
           'From product warranties to recurring subscriptions, get timely reminders before it\'s too late.',
     ),
     OnboardingData(
-      image: 'assets/images/onboarding_3.svg',
+      image: 'assets/images/onboarding_3.jpg',
       title: 'Understand Your Spending.',
       subtitle:
           'Automatically categorize your purchases to see exactly where your money goes, effortlessly.',
@@ -163,11 +162,7 @@ class OnboardingPage extends StatelessWidget {
           Expanded(
             flex: 6,
             child: Center(
-              child: SvgPicture.asset(
-                data.image,
-                height: 280,
-                fit: BoxFit.contain,
-              ),
+              child: Image.asset(data.image, height: 280, fit: BoxFit.contain),
             ),
           ),
           // Bottom 40% - Content

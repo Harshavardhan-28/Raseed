@@ -34,12 +34,13 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  
+
   # For smooth page indicators in onboarding
   smooth_page_indicator: ^1.2.0
-  
-  # For SVG support
-  flutter_svg: ^2.0.14
+
+  firebase_core: ^2.30.0
+  firebase_auth: ^4.19.0
+  google_sign_in: ^6.2.1
 
 dev_dependencies:
   flutter_test:
