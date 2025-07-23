@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -21,6 +22,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
   final _totalAmountController = TextEditingController();
   DateTime? _transactionDate;
   List<Map<String, dynamic>> _lineItems = [];
+  Map<String, dynamic> _apiResponseData = {};
   String? _receiptImagePath;
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
@@ -75,26 +77,27 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         debugPrint('API response data: $data');
+        _apiResponseData = data;
         setState(() {
           _storeNameController.text = data['store_name'] ?? '';
           _totalAmountController.text = data['total_amount']?.toString() ?? '';
-          if (data['date_and_time'] != null) {
-            _transactionDate = DateTime.tryParse(data['date_and_time']);
-          }
-          if (data['line_items'] != null && data['line_items'] is List) {
-            _lineItems = List<Map<String, dynamic>>.from(data['line_items'].map((item) => {
-              'description': item['name'] ?? '',
-              'quantity': item['quantity'] ?? '',
-              'price': item['price'] ?? '',
-              'category': item['category'] ?? '',
-              'isFood': item['isFood'] ?? false,
-              'isRecurring': item['isRecurring'] ?? false,
-              'isWarranty': item['isWarranty'] ?? false,
-              'price_per_quantity': item['price_per_quantity'] ?? '',
-            }));
-          } else {
-            _lineItems = [];
-          }
+          _transactionDate = data['date_and_time'] != null ? DateTime.tryParse(data['date_and_time']) : null;
+          _lineItems = data['line_items'] is List
+              ? List<Map<String, dynamic>>.from(data['line_items'].map((item) {
+                  // Ensure all expected fields are present for UI and storage
+                  return {
+                    'description': item['description'] ?? item['name'] ?? '',
+                    'quantity': item['quantity'] ?? 1,
+                    'price': item['price'] ?? 0.0,
+                    'category': item['category'] ?? '',
+                    'isFood': item['isFood'] ?? false,
+                    'isRecurring': item['isRecurring'] ?? false,
+                    'isWarranty': item['isWarranty'] ?? false,
+                    'price_per_quantity': item['price_per_quantity'] ?? '',
+                    'name': item['name'] ?? '', // preserve name for fallback
+                  };
+                }))
+              : [];
         });
       } else {
         debugPrint('API error: ${response.body}');
@@ -113,6 +116,91 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
       }
     }
     setState(() { _isLoading = false; });
+  }
+  Future<String?> _getCurrentUserId() async {
+    final user = FirebaseAuth.instance.currentUser;
+    return user?.uid;
+  }
+
+  Map<String, dynamic> _prepareReceiptDocument(String userId) {
+    return {
+      'user_id': userId,
+      'store_name': _storeNameController.text,
+      'total_amount': double.tryParse(_totalAmountController.text) ?? 0.0,
+      'tax_amount': _apiResponseData['tax_amount'] ?? 0.0,
+      'currency': _apiResponseData['currency'] ?? 'INR',
+      'category': _apiResponseData['category'] ?? 'General',
+      'purchase_date': _transactionDate != null ? Timestamp.fromDate(_transactionDate!) : null,
+      'created_at': FieldValue.serverTimestamp(),
+    };
+  }
+
+  List<Map<String, dynamic>> _prepareLineItemDocuments(String userId, String receiptId) {
+    final List<Map<String, dynamic>> lineItemDocs = [];
+    for (final item in _lineItems) {
+      lineItemDocs.add({
+        'user_id': userId,
+        'receipt_no': receiptId,
+        // Use 'description' if present, else fallback to 'name' (API), else empty string
+        'description': item['description'] ?? item['name'] ?? '',
+        'quantity': item['quantity'] ?? 0,
+        'price': item['price'] ?? 0.0,
+        'category': item['category'] ?? 'Uncategorized',
+        'isWarranty': item['isWarranty'] ?? false,
+        'isFood': item['isFood'] ?? false,
+        'isRecurring': item['isRecurring'] ?? false,
+        'price_per_quantity': item['price_per_quantity'] ?? '',
+      });
+    }
+    return lineItemDocs;
+  }
+
+  Future<void> _saveReceiptData() async {
+    if (_storeNameController.text.isEmpty || _totalAmountController.text.isEmpty || _lineItems.isEmpty || _transactionDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill all fields and ensure items are scanned.'), backgroundColor: Colors.redAccent));
+      return;
+    }
+
+    setState(() { _isLoading = true; });
+    final userId = await _getCurrentUserId();
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User not logged in.'), backgroundColor: Colors.redAccent));
+      setState(() { _isLoading = false; });
+      return;
+    }
+
+    try {
+      final db = FirebaseFirestore.instance;
+      final String? receiptIdFromApi = _apiResponseData['receipt_no'];
+      if (receiptIdFromApi == null || receiptIdFromApi.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Receipt number is missing from API response. Cannot save.'), backgroundColor: Colors.redAccent));
+        setState(() { _isLoading = false; });
+        return;
+      }
+
+      final receiptRef = db.collection('receipts').doc(receiptIdFromApi);
+      final receiptDocumentData = _prepareReceiptDocument(userId);
+      final lineItemDocumentsData = _prepareLineItemDocuments(userId, receiptIdFromApi);
+
+      final batch = db.batch();
+      batch.set(receiptRef, receiptDocumentData);
+
+      for (final lineItemData in lineItemDocumentsData) {
+        final lineItemRef = db.collection('line_items').doc();
+        batch.set(lineItemRef, lineItemData);
+      }
+
+      await batch.commit();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Receipt added successfully!')));
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save receipt: $e'), backgroundColor: Colors.redAccent));
+    } finally {
+      if (mounted) setState(() { _isLoading = false; });
+    }
   }
 
   @override
@@ -256,6 +344,10 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                   ..._lineItems.asMap().entries.map((entry) {
                     final idx = entry.key;
                     final item = entry.value;
+                    // Ensure description is always set for UI
+                    final description = (item['description'] != null && item['description'].toString().isNotEmpty)
+                        ? item['description'].toString()
+                        : (item['name']?.toString() ?? '');
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Row(
@@ -263,7 +355,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                           Expanded(
                             flex: 3,
                             child: TextFormField(
-                              initialValue: item['description']?.toString() ?? '',
+                              initialValue: description,
                               decoration: const InputDecoration(labelText: 'Description'),
                               onChanged: (val) => _lineItems[idx]['description'] = val,
                             ),
@@ -305,42 +397,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                   SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () async {
-                      if (_storeNameController.text.isNotEmpty && _totalAmountController.text.isNotEmpty) {
-                        // Build receipt data using new JSON structure
-                        final receiptData = {
-                          'store_name': _storeNameController.text,
-                          'date_and_time': _transactionDate?.toIso8601String() ?? '',
-                          'currency': 'INR', // You may want to make this selectable
-                          'category': '', // Optionally add a category selector
-                          'total_amount': double.tryParse(_totalAmountController.text) ?? 0.0,
-                          'tax_amount': 0.0, // Optionally add tax input
-                          'line_items': _lineItems.map((item) => {
-                            'name': item['description'] ?? '',
-                            'price_per_quantity': item['price_per_quantity'] ?? '',
-                            'quantity': item['quantity'] ?? 1,
-                            'price': item['price'] ?? '',
-                            'category': item['category'] ?? '',
-                            'isFood': item['isFood'] ?? false,
-                            'isRecurring': item['isRecurring'] ?? false,
-                            'isWarranty': item['isWarranty'] ?? false,
-                          }).toList(),
-                        };
-                        try {
-                          // Save to Firestore
-                          await FirebaseFirestore.instance.collection('receipts').add(receiptData);
-                          if (mounted) {
-                            Navigator.of(context).pop();
-                          }
-                        } catch (e) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Failed to add receipt: $e')),
-                            );
-                          }
-                        }
-                      }
-                    },
+                    onPressed: _saveReceiptData,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF007AFF),
                       padding: const EdgeInsets.symmetric(vertical: 16),

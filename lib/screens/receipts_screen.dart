@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'receipt_detail_screen.dart';
 
 class ReceiptsScreen extends StatelessWidget {
@@ -25,8 +26,17 @@ class ReceiptsScreen extends StatelessWidget {
   }
 
   Widget _buildReceiptsList(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    final userId = user?.uid;
+    if (userId == null) {
+      return const Center(child: Text('Please log in to view your receipts'));
+    }
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('receipts').orderBy('date_and_time', descending: true).snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('receipts')
+          .where('user_id', isEqualTo: userId)
+          .orderBy('purchase_date', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -60,7 +70,7 @@ class ReceiptsScreen extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
                 subtitle: Text(
-                  '${data['category'] ?? ''} • ${data['date_and_time'] ?? ''}',
+                  '${data['category'] ?? ''} • ${data['purchase_date'] != null ? (data['purchase_date'] is Timestamp ? (data['purchase_date'] as Timestamp).toDate().toLocal().toString().split(' ')[0] : data['purchase_date'].toString()) : ''}',
                   style: const TextStyle(color: Colors.grey, fontSize: 14),
                 ),
                 trailing: Text(

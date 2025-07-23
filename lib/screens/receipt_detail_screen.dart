@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ReceiptDetailScreen extends StatelessWidget {
   final Map<String, dynamic> receiptData;
@@ -26,15 +28,34 @@ class ReceiptDetailScreen extends StatelessWidget {
             _buildDetailRow('Store Name', receiptData['store_name']),
             _buildDetailRow('Receipt No', receiptData['receipt_no']),
             _buildDetailRow('Category', receiptData['category']),
-            _buildDetailRow('Date & Time', receiptData['date_and_time']),
+            _buildDetailRow('Purchase Date', _formatDate(receiptData['purchase_date'])),
             _buildDetailRow('Currency', receiptData['currency']),
             _buildDetailRow('Tax Amount', receiptData['tax_amount']),
             _buildDetailRow('Total Amount', receiptData['total_amount']),
             _buildDetailRow('User ID', receiptData['user_id']),
-            // Add more fields as needed
+            const SizedBox(height: 16),
+            if (receiptData['line_items'] != null && receiptData['line_items'] is List && (receiptData['line_items'] as List).isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Line Items', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  ...List.generate((receiptData['line_items'] as List).length, (idx) {
+                    final item = (receiptData['line_items'] as List)[idx] as Map<String, dynamic>;
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      child: ListTile(
+                        title: Text(item['description'] ?? item['name'] ?? 'Item'),
+                        subtitle: Text('Qty: ${item['quantity'] ?? '-'} | Price: ${item['price'] ?? '-'}'),
+                        trailing: Text(item['category'] ?? ''),
+                      ),
+                    );
+                  }),
+                ],
+              ),
           ],
         ),
       ),
+ 
     );
   }
 
@@ -58,5 +79,13 @@ class ReceiptDetailScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatDate(dynamic value) {
+    if (value == null) return '-';
+    if (value is String) return value;
+    if (value is DateTime) return value.toLocal().toString().split(' ')[0];
+    if (value is Timestamp) return value.toDate().toLocal().toString().split(' ')[0];
+    return value.toString();
   }
 }
