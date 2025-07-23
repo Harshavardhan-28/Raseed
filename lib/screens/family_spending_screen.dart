@@ -11,7 +11,7 @@ class FamilySpendingScreen extends StatefulWidget {
 }
 
 class _FamilySpendingScreenState extends State<FamilySpendingScreen> {
-  int _selectedIndex = 3;
+  final int _selectedIndex = 3;
 
   void _onNavTap(int index) {
     if (index == _selectedIndex) return;

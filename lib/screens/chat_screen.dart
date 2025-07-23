@@ -472,7 +472,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                   )
-                  .toList(),
+                  ,
             ],
           ),
         ),
@@ -621,7 +621,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: Text('• $ingredient'),
                     ),
                   )
-                  .toList(),
+                  ,
 
               if (ingredients.length > 3)
                 Text('• +${ingredients.length - 3} more ingredients'),

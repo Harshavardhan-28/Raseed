@@ -11,7 +11,7 @@ class WarrantiesScreen extends StatefulWidget {
 }
 
 class _WarrantiesScreenState extends State<WarrantiesScreen> {
-  int _selectedIndex = 1;
+  final int _selectedIndex = 1;
 
   void _onNavTap(int index) {
     if (index == _selectedIndex) return;

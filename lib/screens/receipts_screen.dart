@@ -5,7 +5,7 @@ import 'receipt_detail_screen.dart';
 
 // 1. Convert to a StatefulWidget
 class ReceiptsScreen extends StatefulWidget {
-  const ReceiptsScreen({Key? key}) : super(key: key);
+  const ReceiptsScreen({super.key});
 
   @override
   State<ReceiptsScreen> createState() => _ReceiptsScreenState();

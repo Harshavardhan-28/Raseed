@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:add_to_google_wallet/widgets/add_to_google_wallet_button.dart';
+import 'package:uuid/uuid.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,7 +12,7 @@ import 'package:http/http.dart' as http;
 
 
 class ReceiptEntryScreen extends StatefulWidget {
-  const ReceiptEntryScreen({Key? key}) : super(key: key);
+  const ReceiptEntryScreen({super.key});
 
   @override
   State<ReceiptEntryScreen> createState() => _ReceiptEntryScreenState();
@@ -18,6 +20,7 @@ class ReceiptEntryScreen extends StatefulWidget {
 
 
 class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
+  String? _lastSavedPass;
   final _storeNameController = TextEditingController();
   final _totalAmountController = TextEditingController();
   DateTime? _transactionDate;
@@ -150,6 +153,8 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
         'isFood': item['isFood'] ?? false,
         'isRecurring': item['isRecurring'] ?? false,
         'price_per_quantity': item['price_per_quantity'] ?? '',
+        // Add purchase_date for each line item
+        'purchase_date': _transactionDate != null ? Timestamp.fromDate(_transactionDate!) : null,
       });
     }
     return lineItemDocs;
@@ -171,20 +176,28 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
 
     try {
       final db = FirebaseFirestore.instance;
-      final String? receiptIdFromApi = _apiResponseData['receipt_no'];
-      if (receiptIdFromApi == null || receiptIdFromApi.isEmpty) {
+      // Generate a random receipt number for Firestore document ID
+      final String generatedReceiptId = '${DateTime.now().millisecondsSinceEpoch}-${100000 + (999999 - 100000) * (new DateTime.now().microsecond % 1000000) ~/ 1000000}';
+      final String? parsedReceiptNo = _apiResponseData['receipt_no'];
+      if (parsedReceiptNo == null || parsedReceiptNo.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Receipt number is missing from API response. Cannot save.'), backgroundColor: Colors.redAccent));
         setState(() { _isLoading = false; });
         return;
       }
 
-      final receiptRef = db.collection('receipts').doc(receiptIdFromApi);
+      // Prepare receipt document and include line items as a field
+      final receiptRef = db.collection('receipts').doc(generatedReceiptId);
       final receiptDocumentData = _prepareReceiptDocument(userId);
-      final lineItemDocumentsData = _prepareLineItemDocuments(userId, receiptIdFromApi);
+      // Store the parsed receipt number in the receipt data
+      receiptDocumentData['parsed_receipt_no'] = parsedReceiptNo;
+      final lineItemDocumentsData = _prepareLineItemDocuments(userId, generatedReceiptId);
+      // Add line items to receipt document
+      receiptDocumentData['line_items'] = lineItemDocumentsData;
 
       final batch = db.batch();
       batch.set(receiptRef, receiptDocumentData);
 
+      // Store each line item as a separate document
       for (final lineItemData in lineItemDocumentsData) {
         final lineItemRef = db.collection('line_items').doc();
         batch.set(lineItemRef, lineItemData);
@@ -192,9 +205,79 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
 
       await batch.commit();
 
+      // Generate pass for Google Wallet
+      final String issuerId = '3388000000022970756';
+      final String issuerEmail = 'harshavardhan.khamkar@gmail.com';
+      final String passId = generatedReceiptId;
+      final String passClass = 'Reciepts';
+      final String storeName = _storeNameController.text;
+      final String totalAmount = _totalAmountController.text;
+      final String receiptNo = parsedReceiptNo;
+      final String date = _transactionDate?.toLocal().toString().split(' ')[0] ?? '';
+      final String pass = '''
+      {
+        "iss": "$issuerEmail",
+        "aud": "google",
+        "typ": "savetowallet",
+        "origins": [],
+        "payload": {
+          "genericObjects": [
+            {
+              "id": "$issuerId.$passId",
+              "classId": "$issuerId.$passClass",
+              "genericType": "GENERIC_TYPE_UNSPECIFIED",
+              "hexBackgroundColor": "#007AFF",
+              "logo": {
+                "sourceUri": {
+                  "uri": "https://storage.googleapis.com/wallet-lab-tools-codelab-artifacts-public/pass_google_logo.jpg"
+                }
+              },
+              "cardTitle": {
+                "defaultValue": {
+                  "language": "en",
+                  "value": "Receipt for $storeName"
+                }
+              },
+              "subheader": {
+                "defaultValue": {
+                  "language": "en",
+                  "value": "Total: ₹$totalAmount"
+                }
+              },
+              "header": {
+                "defaultValue": {
+                  "language": "en",
+                  "value": "$receiptNo"
+                }
+              },
+              "barcode": {
+                "type": "QR_CODE",
+                "value": "$passId"
+              },
+              "heroImage": {
+                "sourceUri": {
+                  "uri": "https://storage.googleapis.com/wallet-lab-tools-codelab-artifacts-public/google-io-hero-demo-only.jpg"
+                }
+              },
+              "textModulesData": [
+                {
+                  "header": "DATE",
+                  "body": "$date",
+                  "id": "date"
+                }
+              ]
+            }
+          ]
+        }
+      }
+      ''';
+      setState(() {
+        _lastSavedPass = pass;
+      });
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Receipt added successfully!')));
-        Navigator.of(context).pop();
+        // Do not pop here, let user add to wallet
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save receipt: $e'), backgroundColor: Colors.redAccent));
@@ -392,25 +475,40 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                         ],
                       ),
                     );
-                  }).toList(),
+                  }),
                   const SizedBox(height: 16),
                   SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _saveReceiptData,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF007AFF),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _saveReceiptData,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF007AFF),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        'Add Receipt',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                     ),
-                    child: const Text(
-                      'Add Receipt',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  const SizedBox(height: 16),
+                  if (_lastSavedPass != null)
+                    AddToGoogleWalletButton(
+                      pass: _lastSavedPass!,
+                      onError: (error) => ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(error.toString()), backgroundColor: Colors.redAccent),
+                      ),
+                      onSuccess: () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Pass added to Google Wallet!'), backgroundColor: Colors.green),
+                      ),
+                      onCanceled: () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Adding pass canceled.'), backgroundColor: Colors.yellow),
+                      ),
+                      locale: const Locale('en'),
                     ),
-                  ),
-                  ),
                 ],
               ),
             ),
@@ -420,7 +518,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
 
 // Modern animated three-dot loader widget with loading text
 class AnimatedThreeDotLoader extends StatefulWidget {
-  const AnimatedThreeDotLoader({Key? key}) : super(key: key);
+  const AnimatedThreeDotLoader({super.key});
 
   @override
   State<AnimatedThreeDotLoader> createState() => _AnimatedThreeDotLoaderState();

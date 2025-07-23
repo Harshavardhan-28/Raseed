@@ -3,14 +3,14 @@ import 'home_screen.dart';
 import 'warranties_screen.dart';
 
 class RecurringBillsScreen extends StatefulWidget {
-  const RecurringBillsScreen({Key? key}) : super(key: key);
+  const RecurringBillsScreen({super.key});
 
   @override
   State<RecurringBillsScreen> createState() => _RecurringBillsScreenState();
 }
 
 class _RecurringBillsScreenState extends State<RecurringBillsScreen> {
-  int _selectedIndex = 2;
+  final int _selectedIndex = 2;
 
   void _onNavTap(int index) {
     if (index == _selectedIndex) return;
