@@ -3,11 +3,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'receipt_detail_screen.dart';
 
-class ReceiptsScreen extends StatelessWidget {
+// 1. Convert to a StatefulWidget
+class ReceiptsScreen extends StatefulWidget {
   const ReceiptsScreen({Key? key}) : super(key: key);
 
   @override
+  State<ReceiptsScreen> createState() => _ReceiptsScreenState();
+}
+
+class _ReceiptsScreenState extends State<ReceiptsScreen> {
+
+  @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('All Receipts'),
@@ -20,12 +29,15 @@ class ReceiptsScreen extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
-      body: _buildReceiptsList(context),
+      // Check if user is logged in before building the list
+      body: user == null
+          ? const Center(child: Text('Please log in to view your receipts'))
+          : _buildReceiptsList(),
       backgroundColor: const Color(0xFFF8F9FA),
     );
   }
 
-  Widget _buildReceiptsList(BuildContext context) {
+  Widget _buildReceiptsList() {
     final user = FirebaseAuth.instance.currentUser;
     final userId = user?.uid;
     if (userId == null) {
@@ -38,12 +50,18 @@ class ReceiptsScreen extends StatelessWidget {
           .orderBy('purchase_date', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          print('ReceiptsScreen StreamBuilder error: ${snapshot.error}');
+          debugPrint('ReceiptsScreen StreamBuilder error: ${snapshot.error}');
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const Center(child: Text('No receipts found'));
         }
+
         final receipts = snapshot.data!.docs;
         return ListView.builder(
           padding: const EdgeInsets.all(16),
@@ -54,7 +72,8 @@ class ReceiptsScreen extends StatelessWidget {
             return Card(
               elevation: 1,
               margin: const EdgeInsets.symmetric(vertical: 6),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               child: ListTile(
                 leading: Container(
                   width: 48,
@@ -63,14 +82,16 @@ class ReceiptsScreen extends StatelessWidget {
                     color: Colors.blue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.receipt_long, color: Colors.blue, size: 24),
+                  child: const Icon(Icons.receipt_long,
+                      color: Colors.blue, size: 24),
                 ),
                 title: Text(
                   data['store_name'] ?? 'Unknown Store',
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600, fontSize: 16),
                 ),
                 subtitle: Text(
-                  '${data['category'] ?? ''} • ${data['purchase_date'] != null ? (data['purchase_date'] is Timestamp ? (data['purchase_date'] as Timestamp).toDate().toLocal().toString().split(' ')[0] : data['purchase_date'].toString()) : ''}',
+                  '${data['category'] ?? ''} • ${data['purchase_date'] != null ? (data['purchase_date'] as Timestamp).toDate().toLocal().toString().split(' ')[0] : ''}',
                   style: const TextStyle(color: Colors.grey, fontSize: 14),
                 ),
                 trailing: Text(
@@ -85,7 +106,8 @@ class ReceiptsScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ReceiptDetailScreen(receiptData: data),
+                      builder: (context) =>
+                          ReceiptDetailScreen(receiptData: data),
                     ),
                   );
                 },
