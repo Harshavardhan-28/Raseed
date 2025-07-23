@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -76,15 +76,22 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
         final data = jsonDecode(response.body);
         debugPrint('API response data: $data');
         setState(() {
-          _storeNameController.text = data['storeName'] ?? '';
-          _totalAmountController.text = data['totalAmount']?.toString() ?? '';
-          if (data['transactionDate'] != null) {
-            _transactionDate = DateTime.tryParse(data['transactionDate']);
-          } else if (data['date'] != null) {
-            _transactionDate = DateTime.tryParse(data['date']);
+          _storeNameController.text = data['store_name'] ?? '';
+          _totalAmountController.text = data['total_amount']?.toString() ?? '';
+          if (data['date_and_time'] != null) {
+            _transactionDate = DateTime.tryParse(data['date_and_time']);
           }
-          if (data['lineItems'] != null && data['lineItems'] is List) {
-            _lineItems = List<Map<String, dynamic>>.from(data['lineItems']);
+          if (data['line_items'] != null && data['line_items'] is List) {
+            _lineItems = List<Map<String, dynamic>>.from(data['line_items'].map((item) => {
+              'description': item['name'] ?? '',
+              'quantity': item['quantity'] ?? '',
+              'price': item['price'] ?? '',
+              'category': item['category'] ?? '',
+              'isFood': item['isFood'] ?? false,
+              'isRecurring': item['isRecurring'] ?? false,
+              'isWarranty': item['isWarranty'] ?? false,
+              'price_per_quantity': item['price_per_quantity'] ?? '',
+            }));
           } else {
             _lineItems = [];
           }
@@ -296,31 +303,56 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                   }).toList(),
                   const SizedBox(height: 16),
                   SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_storeNameController.text.isNotEmpty && _totalAmountController.text.isNotEmpty) {
-                          final transaction = {
-                            'storeName': _storeNameController.text,
-                            'totalAmount': _totalAmountController.text,
-                            'transactionDate': _transactionDate?.toIso8601String(),
-                            'lineItems': _lineItems,
-                          };
-                          Navigator.of(context).pop(transaction);
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_storeNameController.text.isNotEmpty && _totalAmountController.text.isNotEmpty) {
+                        // Build receipt data using new JSON structure
+                        final receiptData = {
+                          'store_name': _storeNameController.text,
+                          'date_and_time': _transactionDate?.toIso8601String() ?? '',
+                          'currency': 'INR', // You may want to make this selectable
+                          'category': '', // Optionally add a category selector
+                          'total_amount': double.tryParse(_totalAmountController.text) ?? 0.0,
+                          'tax_amount': 0.0, // Optionally add tax input
+                          'line_items': _lineItems.map((item) => {
+                            'name': item['description'] ?? '',
+                            'price_per_quantity': item['price_per_quantity'] ?? '',
+                            'quantity': item['quantity'] ?? 1,
+                            'price': item['price'] ?? '',
+                            'category': item['category'] ?? '',
+                            'isFood': item['isFood'] ?? false,
+                            'isRecurring': item['isRecurring'] ?? false,
+                            'isWarranty': item['isWarranty'] ?? false,
+                          }).toList(),
+                        };
+                        try {
+                          // Save to Firestore
+                          await FirebaseFirestore.instance.collection('receipts').add(receiptData);
+                          if (mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Failed to add receipt: $e')),
+                            );
+                          }
                         }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF007AFF),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: const Text(
-                        'Add Receipt',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF007AFF),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
+                    child: const Text(
+                      'Add Receipt',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  ),
                   ),
                 ],
               ),
