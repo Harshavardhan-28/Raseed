@@ -1,58 +1,7 @@
-import 'package:flutter/material.dart';
+  import 'package:flutter/material.dart';
 import 'warranty_detail_screen.dart';
-
-class WarrantyItem {
-  final String id;
-  final String productName;
-  final String category;
-  final String storeName;
-  final DateTime purchaseDate;
-  final DateTime warrantyExpiry;
-  final String receiptImageUrl;
-  final String storeLocation;
-  final String supportUrl;
-  final String websiteUrl;
-  final IconData categoryIcon;
-
-  WarrantyItem({
-    required this.id,
-    required this.productName,
-    required this.category,
-    required this.storeName,
-    required this.purchaseDate,
-    required this.warrantyExpiry,
-    required this.receiptImageUrl,
-    required this.storeLocation,
-    required this.supportUrl,
-    required this.websiteUrl,
-    required this.categoryIcon,
-  });
-
-  int get daysRemaining {
-    final now = DateTime.now();
-    return warrantyExpiry.difference(now).inDays;
-  }
-
-  bool get isExpired => daysRemaining < 0;
-
-  bool get isExpiringSoon => daysRemaining <= 7 && daysRemaining >= 0;
-
-  bool get isExpiringThisMonth => daysRemaining <= 30 && daysRemaining > 7;
-
-  Color get urgencyColor {
-    if (isExpired) return const Color(0xFFFF3B30); // Red
-    if (isExpiringSoon) return const Color(0xFFFF9500); // Orange
-    if (isExpiringThisMonth) return const Color(0xFFFFCC02); // Yellow
-    return const Color(0xFF34C759); // Green
-  }
-
-  String get urgencyText {
-    if (isExpired) return 'Expired ${daysRemaining.abs()} days ago';
-    if (daysRemaining == 0) return 'Expires today';
-    if (daysRemaining == 1) return 'Expires tomorrow';
-    return 'Expires in $daysRemaining days';
-  }
-}
+import 'home_screen.dart';
+import 'recurring_bills_screen.dart';
 
 class WarrantiesScreen extends StatefulWidget {
   const WarrantiesScreen({super.key});
@@ -62,6 +11,71 @@ class WarrantiesScreen extends StatefulWidget {
 }
 
 class _WarrantiesScreenState extends State<WarrantiesScreen> {
+  int _selectedIndex = 1;
+
+  void _onNavTap(int index) {
+    if (index == _selectedIndex) return;
+    if (index == 0) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else if (index == 1) {
+      // Already here
+    } else if (index == 2) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const RecurringBillsScreen()),
+      );
+    } else if (index == 3) {
+      // TODO: Implement Family screen navigation
+    }
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return BottomAppBar(
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 8.0,
+      child: SizedBox(
+        height: 60,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildBottomNavItem(Icons.home, 'Home', 0),
+            _buildBottomNavItem(Icons.shield_outlined, 'Warranties', 1),
+            const SizedBox(width: 40),
+            _buildBottomNavItem(Icons.refresh, 'Recurring', 2),
+            _buildBottomNavItem(Icons.family_restroom, 'Family', 3),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomNavItem(IconData icon, String label, int index) {
+    final isSelected = _selectedIndex == index;
+    return GestureDetector(
+      onTap: () => _onNavTap(index),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: isSelected ? const Color(0xFF007AFF) : Colors.grey,
+            size: 24,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? const Color(0xFF007AFF) : Colors.grey,
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   final List<WarrantyItem> _warranties = [
     WarrantyItem(
       id: '1',
@@ -254,6 +268,8 @@ class _WarrantiesScreenState extends State<WarrantiesScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: _buildBottomNavigationBar(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
@@ -580,6 +596,57 @@ class _WarrantiesScreenState extends State<WarrantiesScreen> {
         builder: (context) => WarrantyDetailScreen(warranty: warranty),
       ),
     );
+  }
+}
+
+class WarrantyItem {
+  final String id;
+  final String productName;
+  final String category;
+  final String storeName;
+  final DateTime purchaseDate;
+  final DateTime warrantyExpiry;
+  final String receiptImageUrl;
+  final String storeLocation;
+  final String supportUrl;
+  final String websiteUrl;
+  final IconData categoryIcon;
+
+  WarrantyItem({
+    required this.id,
+    required this.productName,
+    required this.category,
+    required this.storeName,
+    required this.purchaseDate,
+    required this.warrantyExpiry,
+    required this.receiptImageUrl,
+    required this.storeLocation,
+    required this.supportUrl,
+    required this.websiteUrl,
+    required this.categoryIcon,
+  });
+
+  int get daysRemaining {
+    final now = DateTime.now();
+    return warrantyExpiry.difference(now).inDays;
+  }
+
+  bool get isExpired => daysRemaining < 0;
+  bool get isExpiringSoon => daysRemaining <= 7 && daysRemaining >= 0;
+  bool get isExpiringThisMonth => daysRemaining <= 30 && daysRemaining > 7;
+
+  Color get urgencyColor {
+    if (isExpired) return const Color(0xFFFF3B30); // Red
+    if (isExpiringSoon) return const Color(0xFFFF9500); // Orange
+    if (isExpiringThisMonth) return const Color(0xFFFFCC02); // Yellow
+    return const Color(0xFF34C759); // Green
+  }
+
+  String get urgencyText {
+    if (isExpired) return 'Expired  A0${daysRemaining.abs()} days ago';
+    if (daysRemaining == 0) return 'Expires today';
+    if (daysRemaining == 1) return 'Expires tomorrow';
+    return 'Expires in $daysRemaining days';
   }
 }
 

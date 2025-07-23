@@ -10,71 +10,65 @@ class WarrantyDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: Colors.black87,
         title: const Text(
           'Warranty Details',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 1,
-        shadowColor: Colors.black12,
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
             onPressed: () => _shareWarranty(context),
+            tooltip: 'Share',
           ),
           PopupMenuButton<String>(
             onSelected: (value) => _handleMenuAction(context, value),
-            itemBuilder:
-                (context) => [
-                  const PopupMenuItem(
-                    value: 'edit',
-                    child: Row(
-                      children: [
-                        Icon(Icons.edit, size: 18),
-                        SizedBox(width: 8),
-                        Text('Edit Details'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'delete',
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete, size: 18, color: Colors.red),
-                        SizedBox(width: 8),
-                        Text('Delete', style: TextStyle(color: Colors.red)),
-                      ],
-                    ),
-                  ),
-                ],
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, size: 18),
+                    SizedBox(width: 8),
+                    Text('Edit Details'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, size: 18, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text('Delete', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Header
+            const SizedBox(height: 16),
             _buildProductHeader(),
-
-            // Warranty Status
+            const SizedBox(height: 12),
             _buildWarrantyStatus(),
-
-            // Purchase Information
+            const SizedBox(height: 12),
             _buildPurchaseInfo(),
-
-            // Receipt Image
+            const SizedBox(height: 12),
             _buildReceiptSection(),
-
-            // Store Location
+            const SizedBox(height: 12),
             _buildStoreLocation(),
-
-            // Action Buttons
+            const SizedBox(height: 24),
             _buildActionButtons(context),
-
             const SizedBox(height: 32),
           ],
         ),
@@ -84,37 +78,35 @@ class WarrantyDetailScreen extends StatelessWidget {
 
   Widget _buildProductHeader() {
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
-              color: warranty.urgencyColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
+              color: warranty.urgencyColor.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
               warranty.categoryIcon,
               color: warranty.urgencyColor,
-              size: 32,
+              size: 28,
             ),
           ),
-
           const SizedBox(width: 16),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,18 +114,19 @@ class WarrantyDetailScreen extends StatelessWidget {
                 Text(
                   warranty.productName,
                   style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 19,
+                    fontWeight: FontWeight.w700,
                     color: Colors.black87,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Text(
                   warranty.category,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
+                  style: TextStyle(
                     fontWeight: FontWeight.w500,
+                    color: Colors.grey[700],
                   ),
                 ),
               ],
@@ -146,81 +139,46 @@ class WarrantyDetailScreen extends StatelessWidget {
 
   Widget _buildWarrantyStatus() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: warranty.urgencyColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        color: warranty.urgencyColor.withOpacity(0.09),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: warranty.urgencyColor.withOpacity(0.3),
+          color: warranty.urgencyColor.withOpacity(0.22),
           width: 1,
         ),
       ),
-      child: Column(
+      child: Row(
         children: [
-          Row(
-            children: [
-              Icon(
-                warranty.isExpired ? Icons.error : Icons.shield,
-                color: warranty.urgencyColor,
-                size: 24,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Warranty Status',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: warranty.urgencyColor,
-                ),
-              ),
-            ],
+          Icon(
+            warranty.isExpired ? Icons.error : Icons.shield,
+            color: warranty.urgencyColor,
+            size: 22,
           ),
-
-          const SizedBox(height: 12),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    warranty.urgencyText,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: warranty.urgencyColor,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Expires: ${_formatDate(warranty.warrantyExpiry)}',
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                ],
-              ),
-
-              if (!warranty.isExpired)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  warranty.urgencyText,
+                  style: TextStyle(
                     color: warranty.urgencyColor,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    warranty.isExpiringSoon ? 'URGENT' : 'ACTIVE',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
                   ),
                 ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  warranty.isExpired ? 'Warranty expired' : 'Warranty active',
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -229,45 +187,34 @@ class WarrantyDetailScreen extends StatelessWidget {
 
   Widget _buildPurchaseInfo() {
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
-            children: [
-              Icon(Icons.receipt_long, color: Color(0xFF007AFF), size: 20),
-              SizedBox(width: 8),
-              Text(
-                'Purchase Information',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
+          Text(
+            'Purchase Information',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: Colors.grey[800],
+            ),
           ),
-
-          const SizedBox(height: 16),
-
+          const SizedBox(height: 10),
           _buildInfoRow('Store', warranty.storeName),
           _buildInfoRow('Purchase Date', _formatDate(warranty.purchaseDate)),
-          _buildInfoRow(
-            'Warranty Period',
-            '${_getWarrantyPeriod()} year${_getWarrantyPeriod() != 1 ? 's' : ''}',
-          ),
+          _buildInfoRow('Warranty Expiry', _formatDate(warranty.warrantyExpiry)),
           _buildInfoRow('Product ID', warranty.id.toUpperCase()),
         ],
       ),
@@ -276,18 +223,17 @@ class WarrantyDetailScreen extends StatelessWidget {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 100,
+            width: 110,
             child: Text(
               label,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
+              style: TextStyle(
+                color: Colors.grey[600],
                 fontWeight: FontWeight.w500,
+                fontSize: 14,
               ),
             ),
           ),
@@ -295,10 +241,12 @@ class WarrantyDetailScreen extends StatelessWidget {
             child: Text(
               value,
               style: const TextStyle(
-                fontSize: 14,
                 color: Colors.black87,
                 fontWeight: FontWeight.w500,
+                fontSize: 14,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -308,91 +256,51 @@ class WarrantyDetailScreen extends StatelessWidget {
 
   Widget _buildReceiptSection() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
-            children: [
-              Icon(Icons.image, color: Color(0xFF007AFF), size: 20),
-              SizedBox(width: 8),
-              Text(
-                'Original Receipt',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          GestureDetector(
-            onTap: () => _showReceiptFullScreen(),
-            child: Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  warranty.receiptImageUrl,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return const Center(child: CircularProgressIndicator());
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey[200],
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.receipt_long,
-                            size: 48,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Receipt Image',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
+          Text(
+            'Receipt',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: Colors.grey[800],
             ),
           ),
-
-          const SizedBox(height: 12),
-
-          const Text(
-            'Tap to view full receipt',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+          const SizedBox(height: 10),
+          GestureDetector(
+            onTap: _showReceiptFullScreen,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: warranty.receiptImageUrl.isNotEmpty
+                  ? Image.network(
+                      warranty.receiptImageUrl,
+                      height: 160,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    )
+                  : Container(
+                      height: 160,
+                      width: double.infinity,
+                      color: Colors.grey[200],
+                      child: const Center(
+                        child: Text('No receipt image'),
+                      ),
+                    ),
+            ),
           ),
         ],
       ),

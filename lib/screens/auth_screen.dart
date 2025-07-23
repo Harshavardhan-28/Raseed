@@ -21,25 +21,25 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             children: [
-              const SizedBox(height: 60),
+              const SizedBox(height: 48),
               _buildHeader(),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
               _buildGoogleSignInButton(),
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
               _buildDivider(),
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
               _buildForm(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               _buildSubmitButton(),
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
               _buildBottomNavigation(),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
             ],
           ),
         ),
@@ -375,8 +375,8 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
       if (isSignInView) {
         final user = await _authService.signInWithEmail(
-          _emailController.text.trim(),
-          _passwordController.text,
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
         );
         if (mounted) {
           _navigateToHome(
@@ -386,9 +386,9 @@ class _AuthScreenState extends State<AuthScreen> {
         }
       } else {
         final user = await _authService.signUpWithEmail(
-          _emailController.text.trim(),
-          _passwordController.text,
-          _confirmPasswordController.text,
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          displayName: _emailController.text.trim().split('@')[0],
         );
         if (mounted) {
           _navigateToHome(
