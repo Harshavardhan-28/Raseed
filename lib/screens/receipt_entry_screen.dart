@@ -1,11 +1,12 @@
-
 import 'package:flutter/material.dart';
 import 'package:add_to_google_wallet/widgets/add_to_google_wallet_button.dart';
-import 'package:uuid/uuid.dart';
+import 'dart:async';
+import 'package:record/record.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -29,6 +30,16 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
   String? _receiptImagePath;
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
+
+  // Audio recording state
+  AudioRecorder? _audioRecorder;
+  bool _isRecording = false;
+  String? _audioFilePath;
+  @override
+  void initState() {
+    super.initState();
+    _audioRecorder = AudioRecorder();
+  }
 
 
 
@@ -290,7 +301,107 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
   void dispose() {
     _storeNameController.dispose();
     _totalAmountController.dispose();
+    _audioRecorder?.dispose();
     super.dispose();
+  }
+
+  // Handle voice input button
+  Future<void> _handleVoiceInput() async {
+    if (_isRecording) {
+      final path = await _audioRecorder?.stop();
+      setState(() => _isRecording = false);
+      if (path != null) {
+        await _sendAudioToApi(path);
+      }
+    } else {
+      final status = await Permission.microphone.request();
+      if (status != PermissionStatus.granted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Microphone permission is required for voice input.')),
+        );
+        return;
+      }
+      try {
+        Directory tempDir = await getTemporaryDirectory();
+        _audioFilePath = '${tempDir.path}/voice_receipt.wav';
+        
+        await _audioRecorder?.start(
+            const RecordConfig(encoder: AudioEncoder.wav),
+            path: _audioFilePath!);
+
+        setState(() => _isRecording = true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Recording... Tap the mic again to stop.')),
+        );
+      } catch (e) {
+        debugPrint('Failed to start recorder: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: Could not start recorder. $e')),
+        );
+        setState(() => _isRecording = false);
+      }
+    }
+  }
+
+  Future<void> _sendAudioToApi(String filePath) async {
+    setState(() { _isLoading = true; });
+    try {
+      final file = File(filePath);
+      if (!await file.exists()) {
+        throw Exception("Recording failed: File does not exist.");
+      }
+      final fileSize = await file.length();
+      debugPrint('Recorded file size: $fileSize bytes');
+      if (fileSize < 1024) { // Increased threshold to 1KB
+        throw Exception("Recording is too short. Please record for at least one second.");
+      }
+
+      final bytes = await file.readAsBytes();
+      final base64Audio = base64Encode(bytes);
+
+      final response = await http.post(
+        Uri.parse('https://parse-reciept-audio-direct-979444618103.europe-west1.run.app'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'audio': base64Audio}),
+      );
+
+      debugPrint('Audio API response status: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        debugPrint('Audio API response data: $data');
+        _apiResponseData = data;
+        setState(() {
+          _storeNameController.text = data['store_name'] ?? '';
+          _totalAmountController.text = data['total_amount']?.toString() ?? '';
+          _transactionDate = data['date_and_time'] != null ? DateTime.tryParse(data['date_and_time']) : null;
+          _lineItems = data['line_items'] is List
+              ? List<Map<String, dynamic>>.from(data['line_items'].map((item) {
+                  return {
+                    'description': item['description'] ?? item['name'] ?? '',
+                    'quantity': item['quantity'] ?? 1,
+                    'price': item['price'] ?? 0.0,
+                    'category': item['category'] ?? '',
+                    'isFood': item['isFood'] ?? false,
+                    'isRecurring': item['isRecurring'] ?? false,
+                    'isWarranty': item['isWarranty'] ?? false,
+                    'price_per_quantity': item['price_per_quantity'] ?? '',
+                    'name': item['name'] ?? '',
+                  };
+                }))
+              : [];
+        });
+      } else {
+        throw Exception('Failed to process audio: ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('Exception during audio processing: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error processing voice input: $e')),
+        );
+      }
+    }
+    setState(() { _isLoading = false; });
   }
 
   @override
@@ -350,6 +461,16 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                           foregroundColor: const Color(0xFF007AFF),
                           elevation: 2,
                         ),
+                      ),
+                      const SizedBox(width: 12),
+                      IconButton(
+                        icon: Icon(
+                          _isRecording ? Icons.stop_circle_outlined : Icons.mic,
+                          color: _isRecording ? Colors.redAccent : const Color(0xFF007AFF),
+                          size: 32,
+                        ),
+                        tooltip: 'Fill form by voice',
+                        onPressed: _handleVoiceInput,
                       ),
                     ],
                   ),
@@ -556,6 +677,7 @@ class _AnimatedThreeDotLoaderState extends State<AnimatedThreeDotLoader> with Si
               // Each dot animates with a phase offset
               List<double> scales = List.generate(3, (i) {
                 double phase = (t - i * 0.2) % 1.0;
+                if (phase < 0) phase += 1.0;
                 double scale = 0.7 + 0.6 * (0.5 + 0.5 * (1 - (phase * 2 - 1).abs()));
                 return scale;
               });
@@ -569,16 +691,9 @@ class _AnimatedThreeDotLoaderState extends State<AnimatedThreeDotLoader> with Si
                       child: Container(
                         width: 14,
                         height: 14,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF007AFF),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF007AFF),
                           shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.blueAccent.withOpacity(0.15),
-                              blurRadius: 6,
-                              spreadRadius: 1,
-                            ),
-                          ],
                         ),
                       ),
                     ),
