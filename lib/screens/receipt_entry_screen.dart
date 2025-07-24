@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 
 
 class ReceiptEntryScreen extends StatefulWidget {
-  const ReceiptEntryScreen({super.key});
+  const ReceiptEntryScreen({Key? key}) : super(key: key);
 
   @override
   State<ReceiptEntryScreen> createState() => _ReceiptEntryScreenState();
@@ -177,7 +177,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
     try {
       final db = FirebaseFirestore.instance;
       // Generate a random receipt number for Firestore document ID
-      final String generatedReceiptId = '${DateTime.now().millisecondsSinceEpoch}-${100000 + (999999 - 100000) * (new DateTime.now().microsecond % 1000000) ~/ 1000000}';
+      final String generatedReceiptId = DateTime.now().millisecondsSinceEpoch.toString() + '-' + (100000 + (999999 - 100000) * (new DateTime.now().microsecond % 1000000) ~/ 1000000).toString();
       final String? parsedReceiptNo = _apiResponseData['receipt_no'];
       if (parsedReceiptNo == null || parsedReceiptNo.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Receipt number is missing from API response. Cannot save.'), backgroundColor: Colors.redAccent));
@@ -475,7 +475,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                         ],
                       ),
                     );
-                  }),
+                  }).toList(),
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
@@ -518,7 +518,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
 
 // Modern animated three-dot loader widget with loading text
 class AnimatedThreeDotLoader extends StatefulWidget {
-  const AnimatedThreeDotLoader({super.key});
+  const AnimatedThreeDotLoader({Key? key}) : super(key: key);
 
   @override
   State<AnimatedThreeDotLoader> createState() => _AnimatedThreeDotLoaderState();
