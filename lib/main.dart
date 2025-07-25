@@ -7,6 +7,10 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
+  // Disable debug overlays in production
+  WidgetsApp.debugAllowBannerOverride = false;
+  
   runApp(const RaseedApp());
 }
 
@@ -18,6 +22,8 @@ class RaseedApp extends StatelessWidget {
     return MaterialApp(
       title: 'RASEED - Finance App',
       debugShowCheckedModeBanner: false,
+      showPerformanceOverlay: false,
+      showSemanticsDebugger: false,
       theme: ThemeData(
         primaryColor: const Color(0xFF007AFF),
         scaffoldBackgroundColor: Colors.white,
