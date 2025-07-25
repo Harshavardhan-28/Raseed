@@ -50,22 +50,27 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget _buildHeader() {
     return Column(
       children: [
-        // RASEED Logo with creative styling
+        // App logo or title
         Container(
           width: 100,
           height: 100,
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF007AFF), Color(0xFF5856D6)],
+              colors: [Color(0xFF64B5F6), Color(0xFF42A5F5), Color(0xFF2196F3)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(25),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF007AFF).withValues(alpha: 0.3),
+                color: const Color(0xFF64B5F6).withOpacity(0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
+              ),
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -76,7 +81,6 @@ class _AuthScreenState extends State<AuthScreen> {
                 fontSize: 48,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
-                letterSpacing: 2,
               ),
             ),
           ),
@@ -233,7 +237,7 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF007AFF), width: 2),
+          borderSide: const BorderSide(color: Color(0xFF64B5F6), width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -254,33 +258,52 @@ class _AuthScreenState extends State<AuthScreen> {
       child: ElevatedButton(
         onPressed: isLoading ? null : _handleEmailAuth,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF007AFF),
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
-          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          disabledBackgroundColor: const Color(
-            0xFF007AFF,
-          ).withValues(alpha: 0.6),
+          elevation: 0,
+          shadowColor: Colors.transparent,
+        ).copyWith(
+          backgroundColor: WidgetStateProperty.all(Colors.transparent),
         ),
-        child:
-            isLoading
-                ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-                : Text(
-                  isSignInView ? 'Login' : 'Sign Up',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF64B5F6), Color(0xFF42A5F5), Color(0xFF2196F3)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF64B5F6).withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Center(
+            child:
+                isLoading
+                    ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                    : Text(
+                      isSignInView ? 'Login' : 'Sign Up',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+          ),
+        ),
       ),
     );
   }
@@ -305,7 +328,7 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Text(
             isSignInView ? 'Sign Up' : 'Login',
             style: const TextStyle(
-              color: Color(0xFF007AFF),
+              color: Color(0xFF64B5F6),
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),

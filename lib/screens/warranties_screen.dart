@@ -1,4 +1,4 @@
-  import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'warranty_detail_screen.dart';
 import 'home_screen.dart';
 import 'recurring_bills_screen.dart';
@@ -59,14 +59,14 @@ class _WarrantiesScreenState extends State<WarrantiesScreen> {
         children: [
           Icon(
             icon,
-            color: isSelected ? const Color(0xFF007AFF) : Colors.grey,
+            color: isSelected ? const Color(0xFF64B5F6) : Colors.grey,
             size: 24,
           ),
           const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
-              color: isSelected ? const Color(0xFF007AFF) : Colors.grey,
+              color: isSelected ? const Color(0xFF64B5F6) : Colors.grey,
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),

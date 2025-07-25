@@ -58,14 +58,14 @@ class _RecurringBillsScreenState extends State<RecurringBillsScreen> {
         children: [
           Icon(
             icon,
-            color: isSelected ? const Color(0xFF007AFF) : Colors.grey,
+            color: isSelected ? const Color(0xFF64B5F6) : Colors.grey,
             size: 24,
           ),
           const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
-              color: isSelected ? const Color(0xFF007AFF) : Colors.grey,
+              color: isSelected ? const Color(0xFF64B5F6) : Colors.grey,
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
@@ -82,7 +82,10 @@ class _RecurringBillsScreenState extends State<RecurringBillsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text('Recurring Bills', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        title: const Text(
+          'Recurring Bills',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
       ),
       body: Center(
         child: Column(
@@ -90,9 +93,15 @@ class _RecurringBillsScreenState extends State<RecurringBillsScreen> {
           children: [
             Icon(Icons.refresh, size: 64, color: Color(0xFFFF3B30)),
             const SizedBox(height: 24),
-            const Text('Your recurring bills will show up here.', style: TextStyle(fontSize: 18, color: Colors.black87)),
+            const Text(
+              'Your recurring bills will show up here.',
+              style: TextStyle(fontSize: 18, color: Colors.black87),
+            ),
             const SizedBox(height: 8),
-            const Text('Track and manage upcoming payments easily.', style: TextStyle(fontSize: 14, color: Colors.grey)),
+            const Text(
+              'Track and manage upcoming payments easily.',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
           ],
         ),
       ),

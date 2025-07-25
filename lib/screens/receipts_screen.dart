@@ -12,7 +12,6 @@ class ReceiptsScreen extends StatefulWidget {
 }
 
 class _ReceiptsScreenState extends State<ReceiptsScreen> {
-
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -31,9 +30,7 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
         surfaceTintColor: Colors.transparent,
       ),
       // Check if user is logged in before building the list
-      body: user == null
-          ? _buildLoginPrompt()
-          : _buildReceiptsList(),
+      body: user == null ? _buildLoginPrompt() : _buildReceiptsList(),
       backgroundColor: const Color(0xFFF8F9FA),
     );
   }
@@ -84,10 +81,7 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
             const SizedBox(height: 12),
             Text(
               'Please log in to view and manage your receipts',
-              style: TextStyle(
-                fontSize: 16,
-                color: Color(0xFF5F6368),
-              ),
+              style: TextStyle(fontSize: 16, color: Color(0xFF5F6368)),
               textAlign: TextAlign.center,
             ),
           ],
@@ -103,11 +97,12 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
       return _buildLoginPrompt();
     }
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('receipts')
-          .where('user_id', isEqualTo: userId)
-          .orderBy('purchase_date', descending: true)
-          .snapshots(),
+      stream:
+          FirebaseFirestore.instance
+              .collection('receipts')
+              .where('user_id', isEqualTo: userId)
+              .orderBy('purchase_date', descending: true)
+              .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           print('ReceiptsScreen StreamBuilder error: ${snapshot.error}');
@@ -184,7 +179,10 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16),
@@ -202,7 +200,7 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                 ],
               ),
             ),
-            
+
             // Receipts List
             Expanded(
               child: ListView.builder(
@@ -223,23 +221,27 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
 
   Widget _buildReceiptCard(Map<String, dynamic> data, BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE8EAED), width: 1),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
+            color: const Color(0xFF64B5F6).withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
             color: Colors.black.withOpacity(0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           onTap: () {
             Navigator.push(
               context,
@@ -249,25 +251,36 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
             );
           },
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             child: Row(
               children: [
                 // Store Icon
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4285F4).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF64B5F6), Color(0xFF42A5F5)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF64B5F6).withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: const Icon(
                     Icons.store_outlined,
-                    color: Color(0xFF4285F4),
-                    size: 24,
+                    color: Colors.white,
+                    size: 28,
                   ),
                 ),
                 const SizedBox(width: 16),
-                
+
                 // Receipt Info - Make this flexible
                 Expanded(
                   flex: 3,
@@ -287,10 +300,14 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          if (data['category'] != null && data['category'].toString().isNotEmpty) ...[
+                          if (data['category'] != null &&
+                              data['category'].toString().isNotEmpty) ...[
                             Flexible(
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFE8F0FE),
                                   borderRadius: BorderRadius.circular(12),
@@ -317,9 +334,13 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                           const SizedBox(width: 4),
                           Flexible(
                             child: Text(
-                              data['purchase_date'] != null 
-                                ? (data['purchase_date'] as Timestamp).toDate().toLocal().toString().split(' ')[0]
-                                : 'No date',
+                              data['purchase_date'] != null
+                                  ? (data['purchase_date'] as Timestamp)
+                                      .toDate()
+                                      .toLocal()
+                                      .toString()
+                                      .split(' ')[0]
+                                  : 'No date',
                               style: const TextStyle(
                                 color: Color(0xFF5F6368),
                                 fontSize: 13,
@@ -333,9 +354,9 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(width: 12),
-                
+
                 // Amount - Make this flexible too
                 Expanded(
                   flex: 2,
@@ -354,7 +375,10 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                       ),
                       const SizedBox(height: 4),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFE6F4EA),
                           borderRadius: BorderRadius.circular(12),
@@ -371,7 +395,7 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(width: 8),
                 Icon(
                   Icons.arrow_forward_ios,
@@ -397,10 +421,7 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
           SizedBox(height: 16),
           Text(
             'Loading your receipts...',
-            style: TextStyle(
-              fontSize: 16,
-              color: Color(0xFF5F6368),
-            ),
+            style: TextStyle(fontSize: 16, color: Color(0xFF5F6368)),
           ),
         ],
       ),
@@ -453,10 +474,7 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
             const SizedBox(height: 12),
             const Text(
               'Start adding receipts to track your expenses',
-              style: TextStyle(
-                fontSize: 16,
-                color: Color(0xFF5F6368),
-              ),
+              style: TextStyle(fontSize: 16, color: Color(0xFF5F6368)),
               textAlign: TextAlign.center,
             ),
           ],
@@ -511,10 +529,7 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
             const SizedBox(height: 12),
             Text(
               error,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Color(0xFF5F6368),
-              ),
+              style: const TextStyle(fontSize: 16, color: Color(0xFF5F6368)),
               textAlign: TextAlign.center,
             ),
           ],

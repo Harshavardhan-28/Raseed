@@ -61,14 +61,14 @@ class _FamilySpendingScreenState extends State<FamilySpendingScreen> {
         children: [
           Icon(
             icon,
-            color: isSelected ? const Color(0xFF007AFF) : Colors.grey,
+            color: isSelected ? const Color(0xFF64B5F6) : Colors.grey,
             size: 24,
           ),
           const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
-              color: isSelected ? const Color(0xFF007AFF) : Colors.grey,
+              color: isSelected ? const Color(0xFF64B5F6) : Colors.grey,
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),

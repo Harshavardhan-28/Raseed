@@ -26,28 +26,29 @@ class WarrantyDetailScreen extends StatelessWidget {
           ),
           PopupMenuButton<String>(
             onSelected: (value) => _handleMenuAction(context, value),
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Icons.edit, size: 18),
-                    SizedBox(width: 8),
-                    Text('Edit Details'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, size: 18, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Delete', style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
+            itemBuilder:
+                (context) => [
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, size: 18),
+                        SizedBox(width: 8),
+                        Text('Edit Details'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete, size: 18, color: Colors.red),
+                        SizedBox(width: 8),
+                        Text('Delete', style: TextStyle(color: Colors.red)),
+                      ],
+                    ),
+                  ),
+                ],
           ),
         ],
       ),
@@ -171,10 +172,7 @@ class WarrantyDetailScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   warranty.isExpired ? 'Warranty expired' : 'Warranty active',
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
                 ),
               ],
             ),
@@ -213,7 +211,10 @@ class WarrantyDetailScreen extends StatelessWidget {
           const SizedBox(height: 10),
           _buildInfoRow('Store', warranty.storeName),
           _buildInfoRow('Purchase Date', _formatDate(warranty.purchaseDate)),
-          _buildInfoRow('Warranty Expiry', _formatDate(warranty.warrantyExpiry)),
+          _buildInfoRow(
+            'Warranty Expiry',
+            _formatDate(warranty.warrantyExpiry),
+          ),
           _buildInfoRow('Product ID', warranty.id.toUpperCase()),
         ],
       ),
@@ -284,21 +285,20 @@ class WarrantyDetailScreen extends StatelessWidget {
             onTap: _showReceiptFullScreen,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: warranty.receiptImageUrl.isNotEmpty
-                  ? Image.network(
-                      warranty.receiptImageUrl,
-                      height: 160,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      height: 160,
-                      width: double.infinity,
-                      color: Colors.grey[200],
-                      child: const Center(
-                        child: Text('No receipt image'),
+              child:
+                  warranty.receiptImageUrl.isNotEmpty
+                      ? Image.network(
+                        warranty.receiptImageUrl,
+                        height: 160,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      )
+                      : Container(
+                        height: 160,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: const Center(child: Text('No receipt image')),
                       ),
-                    ),
             ),
           ),
         ],
@@ -326,7 +326,7 @@ class WarrantyDetailScreen extends StatelessWidget {
         children: [
           const Row(
             children: [
-              Icon(Icons.location_on, color: Color(0xFF007AFF), size: 20),
+              Icon(Icons.location_on, color: Color(0xFF64B5F6), size: 20),
               SizedBox(width: 8),
               Text(
                 'Store Location',
@@ -353,8 +353,8 @@ class WarrantyDetailScreen extends StatelessWidget {
             icon: const Icon(Icons.map, size: 18),
             label: const Text('View on Map'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF007AFF),
-              side: const BorderSide(color: Color(0xFF007AFF)),
+              foregroundColor: const Color(0xFF64B5F6),
+              side: const BorderSide(color: Color(0xFF64B5F6)),
             ),
           ),
         ],
@@ -376,7 +376,7 @@ class WarrantyDetailScreen extends StatelessWidget {
                   icon: const Icon(Icons.support_agent),
                   label: const Text('Get Support'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF007AFF),
+                    backgroundColor: const Color(0xFF64B5F6),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -394,8 +394,8 @@ class WarrantyDetailScreen extends StatelessWidget {
                   icon: const Icon(Icons.language),
                   label: const Text('Visit Website'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF007AFF),
-                    side: const BorderSide(color: Color(0xFF007AFF)),
+                    foregroundColor: const Color(0xFF64B5F6),
+                    side: const BorderSide(color: Color(0xFF64B5F6)),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
