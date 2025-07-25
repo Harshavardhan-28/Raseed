@@ -17,21 +17,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<OnboardingData> _onboardingData = [
     OnboardingData(
       image: 'assets/images/undraw_email-consent_j36b.svg',
-      title: 'Snap, Scan, and Simplify.',
+      title: 'Capture & Organize',
       subtitle:
-          'Instantly turn any receipt—paper, email, or photo—into smart, organized data.',
+          'Snap any receipt—paper, email, or photo—and instantly organize your spending.',
     ),
     OnboardingData(
       image: 'assets/images/undraw_booking_1ztt.svg',
-      title: 'Never Miss a Deadline.',
+      title: 'Stay Ahead',
       subtitle:
-          'From product warranties to recurring subscriptions, get timely reminders before it\'s too late.',
+          'Smart reminders for warranties and subscriptions—never miss a claim or renewal.',
     ),
     OnboardingData(
       image: 'assets/images/undraw_analytics_6mru.svg',
-      title: 'Understand Your Spending.',
+      title: 'Track Your Money',
       subtitle:
-          'Automatically categorize your purchases to see exactly where your money goes, effortlessly.',
+          'Effortlessly categorize every purchase—see where your money goes, at a glance.',
     ),
   ];
 
@@ -155,6 +155,14 @@ class OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    IconData? getIconForTitle(String title) {
+      if (title.contains('Capture')) return Icons.camera_alt_rounded;
+      if (title.contains('Stay Ahead'))
+        return Icons.notifications_active_rounded;
+      if (title.contains('Track')) return Icons.pie_chart_rounded;
+      return null;
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
@@ -163,17 +171,18 @@ class OnboardingPage extends StatelessWidget {
           Expanded(
             flex: 6,
             child: Center(
-              child: data.image.endsWith('.svg')
-                  ? SvgPicture.asset(
-                      data.image,
-                      height: 280,
-                      fit: BoxFit.contain,
-                    )
-                  : Image.asset(
-                      data.image,
-                      height: 280,
-                      fit: BoxFit.contain,
-                    ),
+              child:
+                  data.image.endsWith('.svg')
+                      ? SvgPicture.asset(
+                        data.image,
+                        height: 280,
+                        fit: BoxFit.contain,
+                      )
+                      : Image.asset(
+                        data.image,
+                        height: 280,
+                        fit: BoxFit.contain,
+                      ),
             ),
           ),
           // Bottom 40% - Content
@@ -183,15 +192,29 @@ class OnboardingPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const SizedBox(height: 24),
-                Text(
-                  data.title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                    height: 1.3,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (getIconForTitle(data.title) != null)
+                      Icon(
+                        getIconForTitle(data.title),
+                        color: Colors.blue,
+                        size: 28,
+                      ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        data.title,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 Text(
