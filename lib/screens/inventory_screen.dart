@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'item_details_screen.dart';
+
 class InventoryScreen extends StatelessWidget {
   const InventoryScreen({super.key});
 
@@ -45,11 +47,11 @@ class InventoryScreen extends StatelessWidget {
                   }
                   final items = snapshot.data!.docs;
                   // Group items by category
-                  final Map<String, List<Map<String, dynamic>>> grouped = {};
+                  final Map<String, List<QueryDocumentSnapshot>> grouped = {};
                   for (var doc in items) {
                     final data = doc.data() as Map<String, dynamic>;
                     final category = data['category'] ?? 'Uncategorized';
-                    grouped.putIfAbsent(category, () => []).add(data);
+                    grouped.putIfAbsent(category, () => []).add(doc);
                   }
                   return ListView(
                     padding: const EdgeInsets.all(16),
@@ -71,8 +73,9 @@ class InventoryScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              ...entry.value.map(
-                                (item) => Container(
+                              ...entry.value.map((doc) {
+                                final item = doc.data() as Map<String, dynamic>;
+                                return Container(
                                   margin: const EdgeInsets.symmetric(
                                     vertical: 6,
                                   ),
@@ -95,6 +98,17 @@ class InventoryScreen extends StatelessWidget {
                                     ],
                                   ),
                                   child: ListTile(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => ItemDetailsScreen(
+                                                documentId: doc.id,
+                                              ),
+                                        ),
+                                      );
+                                    },
                                     contentPadding: const EdgeInsets.symmetric(
                                       horizontal: 20,
                                       vertical: 8,
@@ -158,8 +172,8 @@ class InventoryScreen extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
+                                );
+                              }).toList(),
                               const SizedBox(height: 16),
                             ],
                           );
@@ -174,8 +188,9 @@ class InventoryScreen extends StatelessWidget {
     if (value == null) return '-';
     if (value is String) return value;
     if (value is DateTime) return value.toLocal().toString().split(' ')[0];
-    if (value is Timestamp)
+    if (value is Timestamp) {
       return value.toDate().toLocal().toString().split(' ')[0];
+    }
     return value.toString();
   }
 }

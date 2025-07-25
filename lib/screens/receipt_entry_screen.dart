@@ -23,6 +23,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
   String? _lastSavedPass;
   final _storeNameController = TextEditingController();
   final _totalAmountController = TextEditingController();
+  final _manualReceiptNoController = TextEditingController();
   DateTime? _transactionDate;
   List<Map<String, dynamic>> _lineItems = [];
   Map<String, dynamic> _apiResponseData = {};
@@ -231,21 +232,22 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
 
     try {
       final db = FirebaseFirestore.instance;
-      // Generate a random receipt number for Firestore document ID
-      final String generatedReceiptId =
-          DateTime.now().millisecondsSinceEpoch.toString() +
-          '-' +
-          (100000 +
-                  (999999 - 100000) *
-                      (new DateTime.now().microsecond % 1000000) ~/
-                      1000000)
-              .toString();
+      // Determine the receipt number to use
+      String? receiptNoToSave;
       final String? parsedReceiptNo = _apiResponseData['receipt_no'];
-      if (parsedReceiptNo == null || parsedReceiptNo.isEmpty) {
+      final String manualReceiptNo = _manualReceiptNoController.text.trim();
+
+      if (parsedReceiptNo != null && parsedReceiptNo.isNotEmpty) {
+        receiptNoToSave = parsedReceiptNo;
+      } else if (manualReceiptNo.isNotEmpty) {
+        receiptNoToSave = manualReceiptNo;
+      }
+
+      if (receiptNoToSave == null || receiptNoToSave.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text(
-              'Receipt number is missing from API response. Cannot save.',
+              'Receipt number is missing. Please scan a receipt or enter one manually.',
             ),
             backgroundColor: Colors.redAccent,
           ),
@@ -256,11 +258,15 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
         return;
       }
 
+      // Generate a random receipt number for Firestore document ID
+      final String generatedReceiptId =
+          '${DateTime.now().millisecondsSinceEpoch}-${(100000 + (999999 - 100000) * (DateTime.now().microsecond % 1000000) / 1000000).floor()}';
+
       // Prepare receipt document and include line items as a field
       final receiptRef = db.collection('receipts').doc(generatedReceiptId);
       final receiptDocumentData = _prepareReceiptDocument(userId);
-      // Store the parsed receipt number in the receipt data
-      receiptDocumentData['parsed_receipt_no'] = parsedReceiptNo;
+      // Store the parsed or manually entered receipt number in the receipt data
+      receiptDocumentData['parsed_receipt_no'] = receiptNoToSave;
       final lineItemDocumentsData = _prepareLineItemDocuments(
         userId,
         generatedReceiptId,
@@ -286,7 +292,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
       final String passClass = 'Reciepts';
       final String storeName = _storeNameController.text;
       final String totalAmount = _totalAmountController.text;
-      final String receiptNo = parsedReceiptNo;
+      final String receiptNo = receiptNoToSave;
       final String date =
           _transactionDate?.toLocal().toString().split(' ')[0] ?? '';
       final String pass = '''
@@ -629,6 +635,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
   void dispose() {
     _storeNameController.dispose();
     _totalAmountController.dispose();
+    _manualReceiptNoController.dispose();
     _audioRecorder?.dispose();
     super.dispose();
   }
@@ -884,10 +891,15 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                     ),
                     const SizedBox(height: 16),
                     TextField(
-                      controller: _totalAmountController,
-                      keyboardType: TextInputType.numberWithOptions(
-                        decimal: true,
+                      controller: _manualReceiptNoController,
+                      decoration: const InputDecoration(
+                        labelText: 'Receipt Number (if entered manually)',
+                        border: OutlineInputBorder(),
                       ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _totalAmountController,
                       decoration: const InputDecoration(
                         labelText: 'Total Amount',
                         border: OutlineInputBorder(),
