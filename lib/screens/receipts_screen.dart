@@ -20,14 +20,15 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Receipts'),
-        backgroundColor: const Color(0xFF6366F1),
+        backgroundColor: Colors.white,
         elevation: 0,
-        foregroundColor: Colors.white,
+        foregroundColor: const Color(0xFF202124),
         titleTextStyle: const TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+          color: Color(0xFF202124),
+          fontSize: 22,
+          fontWeight: FontWeight.w500,
         ),
+        surfaceTintColor: Colors.transparent,
       ),
       // Check if user is logged in before building the list
       body: user == null
@@ -44,11 +45,12 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE8EAED), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 16,
               offset: const Offset(0, 4),
             ),
           ],
@@ -60,13 +62,13 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withOpacity(0.1),
+                color: const Color(0xFF4285F4).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(40),
               ),
               child: const Icon(
-                Icons.receipt_long,
+                Icons.receipt_long_outlined,
                 size: 40,
-                color: Color(0xFF6366F1),
+                color: Color(0xFF4285F4),
               ),
             ),
             const SizedBox(height: 24),
@@ -74,8 +76,9 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
               'Access Your Receipts',
               style: TextStyle(
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937),
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF202124),
+                letterSpacing: -0.5,
               ),
             ),
             const SizedBox(height: 12),
@@ -83,7 +86,7 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
               'Please log in to view and manage your receipts',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey.shade600,
+                color: Color(0xFF5F6368),
               ),
               textAlign: TextAlign.center,
             ),
@@ -123,31 +126,39 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
           children: [
             // Header with stats
             Container(
-              margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                  colors: [Color(0xFF4285F4), Color(0xFF1A73E8)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF6366F1).withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                    color: const Color(0xFF4285F4).withOpacity(0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.receipt_long,
-                    size: 28,
-                    color: Colors.white,
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: const Icon(
+                      Icons.receipt_long_outlined,
+                      size: 24,
+                      color: Colors.white,
+                    ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,17 +166,17 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                         const Text(
                           'Total Receipts',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             color: Colors.white70,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 4),
                         Text(
                           '${receipts.length}',
                           style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
                         ),
@@ -173,17 +184,18 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white.withOpacity(0.3)),
                     ),
                     child: const Text(
                       'All Time',
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 12,
                         color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -194,7 +206,7 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
             // Receipts List
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: receipts.length,
                 itemBuilder: (context, index) {
                   final doc = receipts[index];
@@ -211,22 +223,23 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
 
   Widget _buildReceiptCard(Map<String, dynamic> data, BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE8EAED), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           onTap: () {
             Navigator.push(
               context,
@@ -236,7 +249,7 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
             );
           },
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(20),
             child: Row(
               children: [
                 // Store Icon
@@ -244,23 +257,16 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        const Color(0xFF6366F1).withOpacity(0.1),
-                        const Color(0xFF8B5CF6).withOpacity(0.1),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: const Color(0xFF4285F4).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
-                    Icons.store,
-                    color: Color(0xFF6366F1),
+                    Icons.store_outlined,
+                    color: Color(0xFF4285F4),
                     size: 24,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 
                 // Receipt Info - Make this flexible
                 Expanded(
@@ -271,29 +277,29 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                       Text(
                         data['store_name'] ?? 'Unknown Store',
                         style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Color(0xFF1F2937),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          color: Color(0xFF202124),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Row(
                         children: [
                           if (data['category'] != null && data['category'].toString().isNotEmpty) ...[
                             Flexible(
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: Colors.blue.shade50,
-                                  borderRadius: BorderRadius.circular(6),
+                                  color: const Color(0xFFE8F0FE),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
                                   data['category'],
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.blue.shade700,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFF1A73E8),
                                     fontWeight: FontWeight.w500,
                                   ),
                                   maxLines: 1,
@@ -301,22 +307,22 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 8),
                           ],
                           Icon(
-                            Icons.calendar_today,
-                            size: 12,
-                            color: Colors.grey.shade500,
+                            Icons.calendar_today_outlined,
+                            size: 14,
+                            color: Color(0xFF5F6368),
                           ),
-                          const SizedBox(width: 2),
+                          const SizedBox(width: 4),
                           Flexible(
                             child: Text(
                               data['purchase_date'] != null 
                                 ? (data['purchase_date'] as Timestamp).toDate().toLocal().toString().split(' ')[0]
                                 : 'No date',
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 12,
+                              style: const TextStyle(
+                                color: Color(0xFF5F6368),
+                                fontSize: 13,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -328,7 +334,7 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                   ),
                 ),
                 
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 
                 // Amount - Make this flexible too
                 Expanded(
@@ -339,26 +345,26 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                       Text(
                         '${data['currency'] ?? ''} ${data['total_amount'] ?? '0'}',
                         style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Color(0xFF059669),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: Color(0xFF137333),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF059669).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
+                          color: const Color(0xFFE6F4EA),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Text(
                           'Paid',
                           style: TextStyle(
-                            fontSize: 8,
-                            color: Color(0xFF059669),
-                            fontWeight: FontWeight.w600,
+                            fontSize: 11,
+                            color: Color(0xFF137333),
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
@@ -366,11 +372,11 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                   ),
                 ),
                 
-                const SizedBox(width: 4),
+                const SizedBox(width: 8),
                 Icon(
                   Icons.arrow_forward_ios,
-                  size: 14,
-                  color: Colors.grey.shade400,
+                  size: 16,
+                  color: Color(0xFF5F6368),
                 ),
               ],
             ),
@@ -386,14 +392,14 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6366F1)),
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4285F4)),
           ),
           SizedBox(height: 16),
           Text(
             'Loading your receipts...',
             style: TextStyle(
               fontSize: 16,
-              color: Color(0xFF6B7280),
+              color: Color(0xFF5F6368),
             ),
           ),
         ],
@@ -408,11 +414,12 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE8EAED), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 16,
               offset: const Offset(0, 4),
             ),
           ],
@@ -424,13 +431,13 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: const Color(0xFF5F6368).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(40),
               ),
-              child: Icon(
-                Icons.receipt_long,
+              child: const Icon(
+                Icons.receipt_long_outlined,
                 size: 40,
-                color: Colors.grey.shade400,
+                color: Color(0xFF5F6368),
               ),
             ),
             const SizedBox(height: 24),
@@ -438,16 +445,17 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
               'No Receipts Yet',
               style: TextStyle(
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937),
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF202124),
+                letterSpacing: -0.5,
               ),
             ),
             const SizedBox(height: 12),
-            Text(
+            const Text(
               'Start adding receipts to track your expenses',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey.shade600,
+                color: Color(0xFF5F6368),
               ),
               textAlign: TextAlign.center,
             ),
@@ -464,11 +472,12 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE8EAED), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 16,
               offset: const Offset(0, 4),
             ),
           ],
@@ -480,13 +489,13 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.red.shade100,
+                color: const Color(0xFFFCE8E6),
                 borderRadius: BorderRadius.circular(40),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.error_outline,
                 size: 40,
-                color: Colors.red.shade600,
+                color: Color(0xFFD93025),
               ),
             ),
             const SizedBox(height: 24),
@@ -494,16 +503,17 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
               'Something went wrong',
               style: TextStyle(
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937),
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF202124),
+                letterSpacing: -0.5,
               ),
             ),
             const SizedBox(height: 12),
             Text(
               error,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
-                color: Colors.grey.shade600,
+                color: Color(0xFF5F6368),
               ),
               textAlign: TextAlign.center,
             ),
