@@ -15,38 +15,6 @@ class SpendingInsightsScreen extends StatefulWidget {
 
 class _SpendingInsightsScreenState extends State<SpendingInsightsScreen>
     with SingleTickerProviderStateMixin {
-  Widget _buildDebugInfoCard() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.yellow[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.yellow[700] ?? Colors.amber, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Debug Info:',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.yellow[900] ?? Colors.amber[900],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text('Fetched items: $_fetchedItemCount'),
-          Text('User ID: $_debugUserId'),
-          Text(
-            'Date Range: ${DateFormat('yyyy-MM-dd').format(_startDate)} to ${DateFormat('yyyy-MM-dd').format(_endDate)}',
-          ),
-        ],
-      ),
-    );
-  }
-
-  int _fetchedItemCount = 0;
-  String _debugUserId = '';
   final user = FirebaseAuth.instance.currentUser;
   late TabController _tabController;
 
@@ -116,9 +84,6 @@ class _SpendingInsightsScreenState extends State<SpendingInsightsScreen>
       return;
     }
 
-    // For debug info
-    _debugUserId = userId;
-
     // Cancel previous subscription if any
     await _lineItemsSubscription?.cancel();
 
@@ -139,10 +104,6 @@ class _SpendingInsightsScreenState extends State<SpendingInsightsScreen>
         final Map<String, double> categorySpending = {};
         double totalSpending = 0;
 
-        _fetchedItemCount = snapshot.docs.length;
-        for (int i = 0; i < snapshot.docs.length && i < 3; i++) {
-          debugPrint('Fetched doc #$i: ' + snapshot.docs[i].data().toString());
-        }
         for (final doc in snapshot.docs) {
           final data = doc.data();
           final category = data['category'] ?? 'Uncategorized';
@@ -155,9 +116,7 @@ class _SpendingInsightsScreenState extends State<SpendingInsightsScreen>
           } else if (priceRaw is String) {
             price = double.tryParse(priceRaw) ?? 0.0;
           }
-          debugPrint(
-            'Doc category: $category, price: $priceRaw (parsed: $price)',
-          );
+
           categorySpending[category] =
               (categorySpending[category] ?? 0) + price;
           totalSpending += price;
@@ -320,7 +279,6 @@ class _SpendingInsightsScreenState extends State<SpendingInsightsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildDebugInfoCard(),
           _buildDateRangeCard(),
           const SizedBox(height: 16),
           _buildTotalSpendingCard(),
