@@ -51,6 +51,8 @@ dependencies:
   record: ^5.0.5
   permission_handler: ^11.3.1
   path_provider: ^2.0.12
+  fl_chart: ^0.68.0
+  shared_preferences: ^2.2.0
 
   # For HTTP requests
   http: ^1.4.0
