@@ -53,6 +53,7 @@ dependencies:
   path_provider: ^2.0.12
   fl_chart: ^0.68.0
   shared_preferences: ^2.2.0
+  firebase_storage: ^11.7.0 # Use latest version
 
   # For HTTP requests
   http: ^1.4.0

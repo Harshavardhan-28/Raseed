@@ -254,16 +254,20 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
             padding: const EdgeInsets.all(24),
             child: Row(
               children: [
-                // Store Icon
+                // Store Icon or Receipt Image
                 Container(
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF64B5F6), Color(0xFF42A5F5)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    gradient:
+                        data['image_url'] != null &&
+                                data['image_url'].toString().isNotEmpty
+                            ? null
+                            : const LinearGradient(
+                              colors: [Color(0xFF64B5F6), Color(0xFF42A5F5)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -273,11 +277,80 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.store_outlined,
-                    color: Colors.white,
-                    size: 28,
-                  ),
+                  child:
+                      data['image_url'] != null &&
+                              data['image_url'].toString().isNotEmpty
+                          ? ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Stack(
+                              children: [
+                                Image.network(
+                                  data['image_url'],
+                                  width: 56,
+                                  height: 56,
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (
+                                    context,
+                                    child,
+                                    loadingProgress,
+                                  ) {
+                                    if (loadingProgress == null) return child;
+                                    return const Center(
+                                      child: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Color(0xFF64B5F6),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Color(0xFF64B5F6),
+                                            Color(0xFF42A5F5),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.broken_image,
+                                        color: Colors.white,
+                                        size: 28,
+                                      ),
+                                    );
+                                  },
+                                ),
+                                // Small image indicator
+                                Positioned(
+                                  bottom: 2,
+                                  right: 2,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.image,
+                                      color: Color(0xFF64B5F6),
+                                      size: 10,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                          : const Icon(
+                            Icons.store_outlined,
+                            color: Colors.white,
+                            size: 28,
+                          ),
                 ),
                 const SizedBox(width: 16),
 

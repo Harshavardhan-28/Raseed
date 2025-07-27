@@ -11,6 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'home_screen.dart';
+import '../services/storage_service.dart';
 
 class ReceiptEntryScreen extends StatefulWidget {
   const ReceiptEntryScreen({Key? key}) : super(key: key);
@@ -28,7 +29,9 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
   List<Map<String, dynamic>> _lineItems = [];
   Map<String, dynamic> _apiResponseData = {};
   String? _receiptImagePath;
+  String? _receiptImageUrl; // Store the Cloud Storage URL
   final ImagePicker _picker = ImagePicker();
+  final StorageService _storageService = StorageService();
   bool _isLoading = false;
   bool _showSuccessFlow = false;
   String _savedReceiptId = '';
@@ -44,32 +47,102 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
   }
 
   Future<void> _pickImageFromCamera() async {
-    final XFile? pickedFile = await _picker.pickImage(
-      source: ImageSource.camera,
-    );
-    if (pickedFile != null) {
-      debugPrint('Camera image picked: \'${pickedFile.path}\'');
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.camera,
+      );
+
+      if (pickedFile != null) {
+        debugPrint('Camera image picked: \'${pickedFile.path}\'');
+        setState(() {
+          _receiptImagePath = pickedFile.path;
+        });
+
+        // Upload to Cloud Storage
+        final String? imageUrl = await _storageService
+            .uploadReceiptImageFromPath(pickedFile.path);
+        if (imageUrl != null) {
+          setState(() {
+            _receiptImageUrl = imageUrl;
+          });
+          debugPrint('Image uploaded to Cloud Storage: $imageUrl');
+
+          // Now scan the receipt
+          await _scanReceipt();
+        } else {
+          throw Exception('Failed to upload image to Cloud Storage');
+        }
+      } else {
+        debugPrint('No image picked from camera.');
+      }
+    } catch (e) {
+      debugPrint('Error picking/uploading camera image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error uploading image: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
       setState(() {
-        _receiptImagePath = pickedFile.path;
+        _isLoading = false;
       });
-      _scanReceipt();
-    } else {
-      debugPrint('No image picked from camera.');
     }
   }
 
   Future<void> _pickImageFromGallery() async {
-    final XFile? pickedFile = await _picker.pickImage(
-      source: ImageSource.gallery,
-    );
-    if (pickedFile != null) {
-      debugPrint('Gallery image picked: \'${pickedFile.path}\'');
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+      );
+
+      if (pickedFile != null) {
+        debugPrint('Gallery image picked: \'${pickedFile.path}\'');
+        setState(() {
+          _receiptImagePath = pickedFile.path;
+        });
+
+        // Upload to Cloud Storage
+        final String? imageUrl = await _storageService
+            .uploadReceiptImageFromPath(pickedFile.path);
+        if (imageUrl != null) {
+          setState(() {
+            _receiptImageUrl = imageUrl;
+          });
+          debugPrint('Image uploaded to Cloud Storage: $imageUrl');
+
+          // Now scan the receipt
+          await _scanReceipt();
+        } else {
+          throw Exception('Failed to upload image to Cloud Storage');
+        }
+      } else {
+        debugPrint('No image picked from gallery.');
+      }
+    } catch (e) {
+      debugPrint('Error picking/uploading gallery image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error uploading image: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
       setState(() {
-        _receiptImagePath = pickedFile.path;
+        _isLoading = false;
       });
-      _scanReceipt();
-    } else {
-      debugPrint('No image picked from gallery.');
     }
   }
 
@@ -78,9 +151,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
       debugPrint('No image path set for scanning.');
       return;
     }
-    setState(() {
-      _isLoading = true;
-    });
+
     final File file = File(_receiptImagePath!);
     try {
       final bytes = await file.readAsBytes();
@@ -145,9 +216,6 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
         );
       }
     }
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   Future<String?> _getCurrentUserId() async {
@@ -167,6 +235,7 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
           _transactionDate != null
               ? Timestamp.fromDate(_transactionDate!)
               : null,
+      'image_url': _receiptImageUrl, // Store the Cloud Storage URL
       'created_at': FieldValue.serverTimestamp(),
     };
   }
@@ -830,17 +899,38 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
                   children: [
                     if (_receiptImagePath != null &&
                         File(_receiptImagePath!).existsSync())
-                      Container(
-                        width: 60,
-                        height: 60,
-                        margin: const EdgeInsets.only(bottom: 16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: DecorationImage(
-                            image: FileImage(File(_receiptImagePath!)),
-                            fit: BoxFit.cover,
+                      Stack(
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 60,
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                image: FileImage(File(_receiptImagePath!)),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
-                        ),
+                          if (_receiptImageUrl != null)
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: Colors.green,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.cloud_done,
+                                  color: Colors.white,
+                                  size: 12,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -1144,7 +1234,7 @@ class _AnimatedThreeDotLoaderState extends State<AnimatedThreeDotLoader>
         ),
         const SizedBox(height: 18),
         const Text(
-          'Analyzing receipt...',
+          'Uploading and analyzing receipt...',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
