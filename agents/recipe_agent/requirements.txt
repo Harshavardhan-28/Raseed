@@ -1,0 +1,5 @@
+google-adk
+firebase-admin
+google-cloud-aiplatform
+google-api-python-client # For google_search
+google-search-results # Depending on your google_search implementation
