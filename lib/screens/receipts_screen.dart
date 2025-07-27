@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'receipt_detail_screen.dart';
+import '../widgets/shared_drawer.dart';
 
 // 1. Convert to a StatefulWidget
 class ReceiptsScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class _ReceiptsScreenState extends State<ReceiptsScreen> {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
+      drawer: const SharedDrawer(),
       appBar: AppBar(
         title: const Text('My Receipts'),
         backgroundColor: Colors.white,

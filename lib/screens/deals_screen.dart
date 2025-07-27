@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/shared_drawer.dart';
 
 class DealsScreen extends StatelessWidget {
   const DealsScreen({super.key});
@@ -7,6 +8,7 @@ class DealsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      drawer: const SharedDrawer(),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,

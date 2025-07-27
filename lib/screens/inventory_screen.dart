@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'item_details_screen.dart';
+import '../widgets/shared_bottom_nav.dart';
+import '../widgets/shared_floating_action_button.dart';
+import '../widgets/shared_drawer.dart';
 
 class InventoryScreen extends StatelessWidget {
   const InventoryScreen({super.key});
@@ -12,6 +15,7 @@ class InventoryScreen extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
     final userId = user?.uid;
     return Scaffold(
+      drawer: const SharedDrawer(),
       appBar: AppBar(
         title: const Text('Inventory'),
         backgroundColor: Colors.white,
@@ -181,6 +185,9 @@ class InventoryScreen extends StatelessWidget {
                   );
                 },
               ),
+      bottomNavigationBar: const SharedBottomNav(currentIndex: 3),
+      floatingActionButton: const SharedFloatingActionButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 

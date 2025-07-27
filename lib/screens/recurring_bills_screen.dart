@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
-import 'warranties_screen.dart';
+import '../widgets/shared_bottom_nav.dart';
+import '../widgets/shared_floating_action_button.dart';
+import '../widgets/shared_drawer.dart';
 
 class RecurringBillsScreen extends StatefulWidget {
   const RecurringBillsScreen({super.key});
@@ -10,75 +11,11 @@ class RecurringBillsScreen extends StatefulWidget {
 }
 
 class _RecurringBillsScreenState extends State<RecurringBillsScreen> {
-  final int _selectedIndex = 2;
-
-  void _onNavTap(int index) {
-    if (index == _selectedIndex) return;
-    if (index == 0) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    } else if (index == 1) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const WarrantiesScreen()),
-      );
-    } else if (index == 2) {
-      // Already here
-    } else if (index == 3) {
-      // TODO: Implement Family screen navigation
-    }
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 8.0,
-      child: SizedBox(
-        height: 60,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildBottomNavItem(Icons.home, 'Home', 0),
-            _buildBottomNavItem(Icons.shield_outlined, 'Warranties', 1),
-            const SizedBox(width: 40),
-            _buildBottomNavItem(Icons.refresh, 'Recurring', 2),
-            _buildBottomNavItem(Icons.family_restroom, 'Family', 3),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavItem(IconData icon, String label, int index) {
-    final isSelected = _selectedIndex == index;
-    return GestureDetector(
-      onTap: () => _onNavTap(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: isSelected ? const Color(0xFF64B5F6) : Colors.grey,
-            size: 24,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? const Color(0xFF64B5F6) : Colors.grey,
-              fontSize: 12,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      drawer: const SharedDrawer(),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -105,7 +42,8 @@ class _RecurringBillsScreenState extends State<RecurringBillsScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: const SharedBottomNav(currentIndex: 2),
+      floatingActionButton: const SharedFloatingActionButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }

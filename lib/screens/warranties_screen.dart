@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'warranty_detail_screen.dart';
-import 'home_screen.dart';
-import 'recurring_bills_screen.dart';
+import '../widgets/shared_bottom_nav.dart';
+import '../widgets/shared_floating_action_button.dart';
 
 class WarrantiesScreen extends StatefulWidget {
   const WarrantiesScreen({super.key});
@@ -11,71 +11,6 @@ class WarrantiesScreen extends StatefulWidget {
 }
 
 class _WarrantiesScreenState extends State<WarrantiesScreen> {
-  final int _selectedIndex = 1;
-
-  void _onNavTap(int index) {
-    if (index == _selectedIndex) return;
-    if (index == 0) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    } else if (index == 1) {
-      // Already here
-    } else if (index == 2) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const RecurringBillsScreen()),
-      );
-    } else if (index == 3) {
-      // TODO: Implement Family screen navigation
-    }
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 8.0,
-      child: SizedBox(
-        height: 60,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildBottomNavItem(Icons.home, 'Home', 0),
-            _buildBottomNavItem(Icons.shield_outlined, 'Warranties', 1),
-            const SizedBox(width: 40),
-            _buildBottomNavItem(Icons.refresh, 'Recurring', 2),
-            _buildBottomNavItem(Icons.family_restroom, 'Family', 3),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavItem(IconData icon, String label, int index) {
-    final isSelected = _selectedIndex == index;
-    return GestureDetector(
-      onTap: () => _onNavTap(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: isSelected ? const Color(0xFF64B5F6) : Colors.grey,
-            size: 24,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? const Color(0xFF64B5F6) : Colors.grey,
-              fontSize: 12,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   final List<WarrantyItem> _warranties = [
     WarrantyItem(
       id: '1',
@@ -268,7 +203,8 @@ class _WarrantiesScreenState extends State<WarrantiesScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: const SharedBottomNav(currentIndex: 1),
+      floatingActionButton: const SharedFloatingActionButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }

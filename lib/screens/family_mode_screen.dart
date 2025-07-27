@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'family_analysis.dart';
 import 'family_management_screen.dart';
+import '../widgets/shared_drawer.dart';
 
 class FamilyModeScreen extends StatefulWidget {
   const FamilyModeScreen({Key? key}) : super(key: key);
@@ -28,6 +29,7 @@ class _FamilyModeScreenState extends State<FamilyModeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const SharedDrawer(),
       appBar: AppBar(
         title: const Text('Family Mode'),
         backgroundColor: Colors.white,

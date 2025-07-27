@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
+import '../widgets/shared_drawer.dart';
 
 class SpendingInsightsScreen extends StatefulWidget {
   const SpendingInsightsScreen({Key? key}) : super(key: key);
@@ -218,6 +219,7 @@ class _SpendingInsightsScreenState extends State<SpendingInsightsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const SharedDrawer(),
       appBar: AppBar(
         title: const Text('Spending Insights'),
         backgroundColor: Colors.white,
