@@ -35,21 +35,16 @@ RASEED revolutionizes personal finance management by combining intelligent recei
 
 ### 🎯 **Family & Social Features**
 - **Family Spending**: Shared expense tracking for families
-- **Bill Splitting**: Smart recurring bill management
-- **Collaborative Budgets**: Group expense planning
-- **Real-time Sync**: Multi-device synchronization
 
 ### 🎨 **Premium User Experience**
 - **Google Material Design 3**: Modern, clean, and intuitive interface
 - **Google Wallet Integration**: Seamless payment method management
-- **Dark/Light Themes**: Adaptive UI for all preferences
 - **Responsive Design**: Perfect on all screen sizes
 
 ### 🔐 **Advanced Authentication & Security**
 - **Google OAuth Integration**: Secure one-tap sign-in
 - **Gmail API Integration**: Automatic email receipt scanning
 - **Firebase Security**: Enterprise-grade data protection
-- **Biometric Authentication**: Fingerprint and face unlock
 
 ### 📊 **Smart Analytics & Insights**
 - **Spending Trends**: AI-driven financial insights
@@ -87,6 +82,13 @@ RASEED revolutionizes personal finance management by combining intelligent recei
 ├── 🏷️ Smart Categorization
 ├── 💡 Spending Insights
 └── 🎯 Predictive Analytics
+
+## **Google Wallet**
+🧠 Direct addition of receipts to wallet
+├── 📸 Text modules
+├── 🏷️ Link modules
+├── 💡 Direct link to image of receipt
+└── 🎯 Deeplink back to Raseed Application
 ```
 
 ## 🛠️ Technology Stack
