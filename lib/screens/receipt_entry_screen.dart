@@ -354,73 +354,14 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
 
       await batch.commit();
 
-      // Generate pass for Google Wallet
-      final String issuerId = '3388000000022970756';
-      final String issuerEmail = 'harshavardhan.khamkar@gmail.com';
-      final String passId = generatedReceiptId;
-      final String passClass = 'Reciepts';
-      final String storeName = _storeNameController.text;
-      final String totalAmount = _totalAmountController.text;
-      final String receiptNo = receiptNoToSave;
-      final String date =
-          _transactionDate?.toLocal().toString().split(' ')[0] ?? '';
-      final String pass = '''
-      {
-        "iss": "$issuerEmail",
-        "aud": "google",
-        "typ": "savetowallet",
-        "origins": [],
-        "payload": {
-          "genericObjects": [
-            {
-              "id": "$issuerId.$passId",
-              "classId": "$issuerId.$passClass",
-              "genericType": "GENERIC_TYPE_UNSPECIFIED",
-              "hexBackgroundColor": "#007AFF",
-              "logo": {
-                "sourceUri": {
-                  "uri": "https://storage.googleapis.com/wallet-lab-tools-codelab-artifacts-public/pass_google_logo.jpg"
-                }
-              },
-              "cardTitle": {
-                "defaultValue": {
-                  "language": "en",
-                  "value": "Receipt for $storeName"
-                }
-              },
-              "subheader": {
-                "defaultValue": {
-                  "language": "en",
-                  "value": "Total: ₹$totalAmount"
-                }
-              },
-              "header": {
-                "defaultValue": {
-                  "language": "en",
-                  "value": "$receiptNo"
-                }
-              },
-              "barcode": {
-                "type": "QR_CODE",
-                "value": "$passId"
-              },
-              "heroImage": {
-                "sourceUri": {
-                  "uri": "https://storage.googleapis.com/wallet-lab-tools-codelab-artifacts-public/google-io-hero-demo-only.jpg"
-                }
-              },
-              "textModulesData": [
-                {
-                  "header": "DATE",
-                  "body": "$date",
-                  "id": "date"
-                }
-              ]
-            }
-          ]
-        }
-      }
-      ''';
+      // Generate pass for Google Wallet with category-specific classes
+      final String pass = _createCategoryBasedWalletPass(
+        generatedReceiptId,
+        receiptNoToSave,
+        receiptDocumentData,
+        lineItemDocumentsData,
+      );
+
       setState(() {
         _lastSavedPass = pass;
         _savedReceiptId = generatedReceiptId;
@@ -444,6 +385,275 @@ class _ReceiptEntryScreenState extends State<ReceiptEntryScreen> {
         setState(() {
           _isLoading = false;
         });
+    }
+  }
+
+  /// Creates a wallet pass with category-specific classes
+  String _createCategoryBasedWalletPass(
+    String passId,
+    String receiptNo,
+    Map<String, dynamic> receiptData,
+    List<Map<String, dynamic>> lineItems,
+  ) {
+    final String issuerId = '3388000000022970756';
+    final String issuerEmail = 'harshavardhan.khamkar@gmail.com';
+
+    // Determine the category from receipt data or line items
+    String category = _determineReceiptCategory(receiptData, lineItems);
+
+    // Map category to wallet class
+    String passClass = _getWalletClassForCategory(category);
+
+    // Get category-specific styling and content
+    Map<String, dynamic> categoryConfig = _getCategoryConfiguration(category);
+
+    final String storeName = receiptData['store_name'] ?? 'Store';
+    final String totalAmount =
+        receiptData['total_amount']?.toString() ?? '0.00';
+    final String date =
+        receiptData['purchase_date']?.toDate().toLocal().toString().split(
+          ' ',
+        )[0] ??
+        DateTime.now().toLocal().toString().split(' ')[0];
+
+    // Build line items text modules - include ALL items for viewing on the back of the pass
+    List<Map<String, String>> textModules = [
+      {"header": "PURCHASE DATE", "body": date, "id": "date"},
+      {"header": "STORE", "body": storeName, "id": "store"},
+      {"header": "TOTAL AMOUNT", "body": "₹$totalAmount", "id": "total"},
+    ];
+
+    // Add ALL line items to the pass (viewable on back)
+    for (int i = 0; i < lineItems.length; i++) {
+      final item = lineItems[i];
+      final description = item['description'] ?? 'Item ${i + 1}';
+      final quantity = item['quantity'] ?? 1;
+      final price = item['price']?.toString() ?? '0.00';
+      final category = item['category'] ?? '';
+
+      // Create detailed item information
+      String itemBody = "${quantity}x ₹$price";
+      if (category.isNotEmpty) {
+        itemBody += " ($category)";
+      }
+
+      textModules.add({
+        "header": "${i + 1}. $description",
+        "body": itemBody,
+        "id": "item_$i",
+      });
+    }
+
+    // Add item count summary
+    textModules.add({
+      "header": "ITEMS COUNT",
+      "body": "${lineItems.length} items",
+      "id": "items_count",
+    });
+
+    debugPrint('🏷️ Creating wallet pass for category: $category');
+    debugPrint('🎯 Using wallet class: $passClass');
+    debugPrint('🎨 Category config: $categoryConfig');
+
+    // Build the pass object instead of a string to better handle conditional fields
+    final Map<String, dynamic> passObject = {
+      "iss": issuerEmail,
+      "aud": "google",
+      "typ": "savetowallet",
+      "origins": [],
+      "payload": {
+        "genericObjects": [
+          {
+            "id": "$issuerId.$passId",
+            "classId": "$issuerId.$passClass",
+            "genericType": "GENERIC_TYPE_UNSPECIFIED",
+            "hexBackgroundColor": categoryConfig['backgroundColor'],
+            "logo": {
+              "sourceUri": {
+                "uri":
+                    "https://storage.googleapis.com/wallet-lab-tools-codelab-artifacts-public/pass_google_logo.jpg",
+              },
+            },
+            "cardTitle": {
+              "defaultValue": {
+                "language": "en",
+                "value": "${categoryConfig['title']} - $storeName",
+              },
+            },
+            "subheader": {
+              "defaultValue": {
+                "language": "en",
+                "value": "Total: ₹$totalAmount",
+              },
+            },
+            "header": {
+              "defaultValue": {"language": "en", "value": "$receiptNo"},
+            },
+            "barcode": {"type": "QR_CODE", "value": "$passId"},
+            "heroImage": {
+              "sourceUri": {"uri": categoryConfig['heroImage']},
+            },
+            "textModulesData": textModules,
+          },
+        ],
+      },
+    };
+
+    // Add receipt image link and app deep link if available
+    final String? receiptImageUrl = receiptData['image_url'] as String?;
+    List<Map<String, String>> uriLinks = [];
+
+    // Add receipt image link if available
+    if (receiptImageUrl != null && receiptImageUrl.isNotEmpty) {
+      uriLinks.add({
+        "uri": receiptImageUrl,
+        "description": "View Original Receipt",
+        "id": "receipt_image",
+      });
+      debugPrint(
+        '📸 Added receipt image link to wallet pass: $receiptImageUrl',
+      );
+    }
+
+    // Add deep link to open receipt in app
+    final String appDeepLink = "raseed://receipt/$passId";
+    uriLinks.add({
+      "uri": appDeepLink,
+      "description": "Open in Raseed App",
+      "id": "app_deeplink",
+    });
+    debugPrint('� Added app deep link to wallet pass: $appDeepLink');
+
+    // Add links module if we have any links
+    if (uriLinks.isNotEmpty) {
+      (passObject['payload']['genericObjects'][0]
+          as Map<String, dynamic>)['linksModuleData'] = {"uris": uriLinks};
+    }
+
+    final String pass = jsonEncode(passObject);
+
+    return pass;
+  }
+
+  /// Determines the receipt category from receipt data and line items
+  String _determineReceiptCategory(
+    Map<String, dynamic> receiptData,
+    List<Map<String, dynamic>> lineItems,
+  ) {
+    // First check if there's a category in the receipt data
+    final receiptCategory = receiptData['category']?.toString().toLowerCase();
+    if (receiptCategory != null) {
+      if (receiptCategory.contains('grocery') ||
+          receiptCategory.contains('supermarket')) {
+        return 'grocery';
+      }
+      if (receiptCategory.contains('restaurant') ||
+          receiptCategory.contains('food')) {
+        return 'restaurant';
+      }
+      if (receiptCategory.contains('electronics') ||
+          receiptCategory.contains('tech')) {
+        return 'electronics-receipt-v1';
+      }
+    }
+
+    // Check line items for category hints
+    int foodCount = 0;
+    int electronicsCount = 0;
+    int groceryCount = 0;
+
+    for (final item in lineItems) {
+      final category = item['category']?.toString().toLowerCase() ?? '';
+      final description = item['description']?.toString().toLowerCase() ?? '';
+
+      // Check for food/restaurant items
+      if (category.contains('food') ||
+          category.contains('beverage') ||
+          description.contains('coffee') ||
+          description.contains('sandwich') ||
+          description.contains('meal') ||
+          description.contains('drink')) {
+        foodCount++;
+      }
+      // Check for electronics items
+      else if (category.contains('electronics') ||
+          category.contains('tech') ||
+          description.contains('phone') ||
+          description.contains('laptop') ||
+          description.contains('cable') ||
+          description.contains('charger')) {
+        electronicsCount++;
+      }
+      // Check for grocery items
+      else if (category.contains('grocery') ||
+          category.contains('household') ||
+          description.contains('bread') ||
+          description.contains('milk') ||
+          description.contains('soap') ||
+          description.contains('detergent')) {
+        groceryCount++;
+      }
+    }
+
+    // Determine dominant category
+    if (foodCount > electronicsCount && foodCount > groceryCount) {
+      return 'restaurant';
+    } else if (electronicsCount > foodCount &&
+        electronicsCount > groceryCount) {
+      return 'electronics-receipt-v1';
+    } else if (groceryCount > foodCount && groceryCount > electronicsCount) {
+      return 'grocery';
+    }
+
+    // Default to generic if no clear category
+    return 'generic';
+  }
+
+  /// Maps category to wallet class name
+  String _getWalletClassForCategory(String category) {
+    switch (category.toLowerCase()) {
+      case 'grocery':
+        return 'grocery';
+      case 'restaurant':
+        return 'restaurant';
+      case 'electronics-receipt-v1':
+        return 'electronics-receipt-v1';
+      default:
+        return 'Reciepts'; // Generic fallback class
+    }
+  }
+
+  /// Gets category-specific configuration for styling and content
+  Map<String, dynamic> _getCategoryConfiguration(String category) {
+    switch (category.toLowerCase()) {
+      case 'grocery':
+        return {
+          'backgroundColor': '#4CAF50', // Green for grocery
+          'title': 'Grocery Receipt',
+          'heroImage':
+              'https://images.unsplash.com/photo-1542838132-92c53300491e?w=1032&h=336&fit=crop&crop=center', // Grocery store image
+        };
+      case 'restaurant':
+        return {
+          'backgroundColor': '#FF9800', // Orange for restaurant
+          'title': 'Restaurant Receipt',
+          'heroImage':
+              'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1032&h=336&fit=crop&crop=center', // Restaurant image
+        };
+      case 'electronics-receipt-v1':
+        return {
+          'backgroundColor': '#2196F3', // Blue for electronics
+          'title': 'Electronics Receipt',
+          'heroImage':
+              'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1032&h=336&fit=crop&crop=center', // Electronics image
+        };
+      default:
+        return {
+          'backgroundColor': '#007AFF', // Default blue
+          'title': 'Receipt',
+          'heroImage':
+              'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1032&h=336&fit=crop&crop=center', // Shopping receipt image
+        };
     }
   }
 
