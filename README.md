@@ -168,7 +168,6 @@ flutter run
 
 ## 👥 Team & Development
 
-**Project Lead**: Harshavardhan  
 **Development Period**: Hackathon Sprint  
 **Code Quality**: Production-ready with comprehensive error handling  
 **Documentation**: Fully documented APIs and components  
