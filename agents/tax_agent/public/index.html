@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Agent Test Interface</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; color: #1c1e21; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #1877f2; }
+        .control-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select, button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; }
+        button { background-color: #1877f2; color: white; font-weight: bold; border: none; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #166fe5; }
+        #response-container { background-color: #282c34; color: #abb2bf; padding: 15px; border-radius: 6px; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; margin-top: 20px; min-height: 100px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Financial Agent Test Interface</h1>
+        
+        <div class="control-group">
+            <label for="userId">User ID</label>
+            <input type="text" id="userId" placeholder="Enter the Firestore user_id to test">
+        </div>
+
+        <div class="control-group">
+            <label for="task">Select Agent Task</label>
+            <select id="task">
+                <option value="find_reimbursements">Find Reimbursements</option>
+                <option value="calculate_tax">Calculate Tax</option>
+                <!-- <option value="generate_deductible_report">Generate Deductible Report</option> -->
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="timeframe">Select Timeframe</label>
+            <select id="timeframe">
+                <option value="last_30_days">Last 30 Days</option>
+                <option value="last_90_days">Last 90 Days</option>
+                <option value="last_year">Last Year</option>
+            </select>
+        </div>
+
+        <button id="run-agent-btn">Run Agent</button>
+
+        <h2>Agent Response:</h2>
+        <pre id="response-container">Awaiting instructions...</pre>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
